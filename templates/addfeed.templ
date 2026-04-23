@@ -1,0 +1,64 @@
+package templates
+
+import "github.com/kontrolplane/feed/internal/store"
+
+templ AddFeedModal(folders []store.Folder) {
+	<div class="scrim" onclick="document.getElementById('modal').innerHTML=''">
+		<div class="modal" onclick="event.stopPropagation()">
+			<div class="modal-head">
+				<span>[ subscribe / add feed ]</span>
+				<span class="close" onclick="document.getElementById('modal').innerHTML=''">✕</span>
+			</div>
+			<div class="modal-body">
+				<h2>add a source.</h2>
+				<div class="sub">paste a site url or a direct rss / atom link. gofeed will probe.</div>
+				<form hx-post="/feeds/probe" hx-target="#probe-results" hx-swap="innerHTML">
+					<label>source url</label>
+					<input
+						type="url"
+						name="url"
+						placeholder="https://example.com  or  https://example.com/feed.xml"
+						required
+					/>
+					<div id="probe-results"></div>
+					<div class="btns">
+						<button type="button" class="ghost" onclick="document.getElementById('modal').innerHTML=''">cancel</button>
+						<button type="submit" class="primary">probe →</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+}
+
+templ ProbeResults(url string, folders []store.Folder) {
+	<label style="margin-top:20px">discovered feeds</label>
+	<div class="discovered">
+		<div class="drow">
+			<input type="checkbox" name="feed_url" value={ url } checked/>
+			<div>
+				<div style="font-weight:600">main feed</div>
+				<div class="dim">{ url } · [ rss/atom ]</div>
+			</div>
+			<div class="dim">ok</div>
+		</div>
+	</div>
+	<label>place in folder</label>
+	<select name="folder">
+		for _, f := range folders {
+			<option value={ f.ID }>{ f.Label }</option>
+		}
+		<option value="__new__">+ new folder…</option>
+	</select>
+	<div class="btns" style="margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)">
+		<button type="button" class="ghost" onclick="document.getElementById('modal').innerHTML=''">cancel</button>
+		<button
+			class="primary"
+			hx-post="/feeds/subscribe"
+			hx-include="closest form"
+			hx-target="#sidebar"
+			hx-swap="outerHTML"
+			onclick="setTimeout(function(){ document.getElementById('modal').innerHTML=''; }, 200)"
+		>subscribe →</button>
+	</div>
+}

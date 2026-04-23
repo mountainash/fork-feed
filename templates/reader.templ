@@ -1,0 +1,111 @@
+package templates
+
+import "github.com/kontrolplane/feed/internal/store"
+import "fmt"
+
+templ Reader(data ReaderData) {
+	if data.Item == nil {
+		<section class="reader" id="reader">
+			<div class="empty">
+				<div class="stagger"><i></i><i></i><i></i></div>
+				<div class="big">pick an item.</div>
+				<div style="font-size:11px;letter-spacing:0.08em;opacity:0.7;margin-top:10px">
+					<span class="inline-kbd">j</span> / <span class="inline-kbd">k</span> navigate ·
+					<span class="inline-kbd">o</span> open ·
+					<span class="inline-kbd">s</span> star
+				</div>
+			</div>
+		</section>
+	} else {
+		@readerContent(data.Item, data.Feed)
+	}
+}
+
+templ readerContent(item *store.Item, feed *store.Feed) {
+	<section class="reader" id="reader">
+		<div class="reader-inner">
+			<div class="actions">
+				<div class="lh">
+					<span>[ reader ]</span>
+					<span style="opacity:0.4">/</span>
+					if feed != nil {
+						<span>{ feed.Title }</span>
+					}
+				</div>
+				<div class="rh">
+					<button
+						class={ templ.KV("on", item.Starred) }
+						hx-post={ "/items/" + item.ID + "/star" }
+						hx-target="#reader"
+						hx-swap="outerHTML"
+					>
+						if item.Starred {
+							★ starred
+						} else {
+							☆ star
+						}
+					</button>
+					<button
+						class={ templ.KV("on", !item.Read) }
+						hx-post={ "/items/" + item.ID + "/toggle-read" }
+						hx-target="#reader"
+						hx-swap="outerHTML"
+					>
+						if item.Read {
+							○ mark unread
+						} else {
+							● mark read
+						}
+					</button>
+					if item.Link != "" {
+						<a href={ templ.SafeURL(item.Link) } target="_blank" rel="noopener">
+							<button>↗ open original</button>
+						</a>
+					} else if feed != nil {
+						<a href={ templ.SafeURL(feed.URL) } target="_blank" rel="noopener">
+							<button>↗ open original</button>
+						</a>
+					}
+				</div>
+			</div>
+			<div class="rmeta">
+				<span>[ { item.Tag } ]</span>
+				<span class="sep">·</span>
+				if feed != nil {
+					<span>{ feed.Title }</span>
+				}
+				<span class="sep">·</span>
+				<span>{ item.Date }</span>
+				<span class="sep">·</span>
+				<span>{ fmt.Sprintf("%d min", item.Minutes) }</span>
+				<span class="sep">·</span>
+				<span>{ item.Folder }</span>
+			</div>
+			<h1>{ item.Title }</h1>
+			<div class="byline">
+				<span>{ item.Authors }</span>
+				if feed != nil {
+					<span class="dim"> &nbsp;/&nbsp; published { item.Date } &nbsp;/&nbsp; fetched via { TruncateURL(feed.URL) }</span>
+				}
+			</div>
+			<div class="abs-block">{ item.Abstract }</div>
+			<div class="body">
+				if item.Body != "" {
+					@templ.Raw(item.Body)
+				} else {
+					@placeholderBody()
+				}
+			</div>
+		</div>
+	</section>
+}
+
+templ placeholderBody() {
+	<p>the motivation is straightforward. real workloads drift. benchmarks don't. what we measured on a single well-behaved node in 2021 does not describe what the same code does in 2026 when it is scheduled next to seventeen noisy neighbours, none of whom share our assumptions about the page cache.</p>
+	<h2>method</h2>
+	<p>we ran the experiment three ways. the first used the stock configuration as shipped — the one most operators will actually deploy. the second was tuned by hand over several weeks by an engineer who has been working on this subsystem since before it had a name. the third was what the autotuner produced on a cold start.</p>
+	<p>the numbers tell a quieter story than we expected. the hand-tuned configuration wins, as it should. the autotuner comes within 8% on median latency and loses by a wider margin on the long tail. the stock configuration is the surprise: it is not catastrophic. in three of seven regimes it is within noise of hand-tuning.</p>
+	<h2>results</h2>
+	<blockquote>this is uncomfortable. most of the reason teams reach for hand tuning is a story about how much is being left on the table. that story is less true than it used to be. it is still true enough to matter for hot paths and tight budgets, but the shape of the curve has changed.</blockquote>
+	<p>we are publishing the full traces, the configs, and the notebook. if you find a different answer on your hardware we would like to hear about it — especially if you are running something that does not look like the median deployment. the interesting cases live in the corners.</p>
+}

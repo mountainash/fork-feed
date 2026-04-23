@@ -1,0 +1,34 @@
+package templates
+
+import "fmt"
+
+templ Status(data StatusData) {
+	<footer
+		class="status"
+		id="status"
+		hx-get="/partials/status"
+		hx-trigger="every 900s"
+		hx-swap="outerHTML"
+	>
+		<div class="seg">
+			<span class="k">[ view ]</span>
+			<span>{ data.ViewTitle }</span>
+		</div>
+		<div class="seg">
+			<span class="k">[ items ]</span>
+			<span>{ fmt.Sprintf("%d / %d", data.FilteredLen, data.TotalLen) }</span>
+		</div>
+		<div class="seg">
+			<span class="k">[ unread ]</span>
+			<span>{ fmt.Sprint(data.UnreadCount) }</span>
+		</div>
+		<div class="right">
+			<span><kbd>j</kbd><kbd>k</kbd> navigate</span>
+			<span><kbd>o</kbd> open</span>
+			<span><kbd>s</kbd> star</span>
+			<span><kbd>/</kbd> search</span>
+			<span>·</span>
+			<span>{ fmt.Sprintf("%d feeds · %s", data.FeedCount, data.LastSync) }</span>
+		</div>
+	</footer>
+}

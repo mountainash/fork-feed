@@ -1,0 +1,96 @@
+package templates
+
+import "fmt"
+
+templ OOBSidebar(data SidebarData) {
+	<aside class="sidebar" id="sidebar" hx-swap-oob="outerHTML">
+		@sidebarInner(data)
+	</aside>
+}
+
+templ sidebarInner(data SidebarData) {
+	<section>
+		<h5><span>[ views ]</span></h5>
+		@sidebarView("01", "all items", "all", data.Counts.All, data.View)
+		@sidebarView("02", "unread", "unread", data.Counts.Unread, data.View)
+		@sidebarView("03", "starred", "starred", data.Counts.Starred, data.View)
+		@sidebarView("04", "today", "today", data.Counts.Today, data.View)
+	</section>
+	<section>
+		<h5>
+			<span>[ folders ]</span>
+			<a
+				class="add"
+				hx-get="/feeds/new"
+				hx-target="#modal"
+				hx-swap="innerHTML"
+				title="add feed"
+			>＋</a>
+		</h5>
+		for i, folder := range data.Folders {
+			@sidebarFolder(folder, i, data.Feeds, data.Counts, data.View)
+		}
+	</section>
+	<section>
+		<h5><span>[ system ]</span></h5>
+		<a
+			class={ "nav-item", templ.KV("active", data.View.Kind == "view" && data.View.ID == "settings") }
+			hx-get="/settings"
+			hx-target="#main"
+			hx-swap="outerHTML"
+			hx-push-url="/settings"
+		>
+			<span class="g">✦</span>
+			<span>settings</span>
+		</a>
+	</section>
+}
+
+templ OOBReaderReset() {
+	<section class="reader" id="reader" hx-swap-oob="outerHTML">
+		<div class="empty">
+			<div class="stagger"><i></i><i></i><i></i></div>
+			<div class="big">pick an item.</div>
+			<div style="font-size:11px;letter-spacing:0.08em;opacity:0.7;margin-top:10px">
+				<span class="inline-kbd">j</span> / <span class="inline-kbd">k</span> navigate ·
+				<span class="inline-kbd">o</span> open ·
+				<span class="inline-kbd">s</span> star
+			</div>
+		</div>
+	</section>
+}
+
+templ OOBStatus(data StatusData) {
+	<footer
+		class="status"
+		id="status"
+		hx-swap-oob="outerHTML"
+		hx-get="/partials/status"
+		hx-trigger="every 900s"
+	>
+		@statusInner(data)
+	</footer>
+}
+
+templ statusInner(data StatusData) {
+	<div class="seg">
+		<span class="k">[ view ]</span>
+		<span>{ data.ViewTitle }</span>
+	</div>
+	<div class="seg">
+		<span class="k">[ items ]</span>
+		<span>{ fmt.Sprintf("%d / %d", data.FilteredLen, data.TotalLen) }</span>
+	</div>
+	<div class="seg">
+		<span class="k">[ unread ]</span>
+		<span>{ fmt.Sprint(data.UnreadCount) }</span>
+	</div>
+	<div class="right">
+		<span><kbd>j</kbd><kbd>k</kbd> navigate</span>
+		<span><kbd>o</kbd> open</span>
+		<span><kbd>s</kbd> star</span>
+		<span><kbd>/</kbd> search</span>
+		<span>·</span>
+		<span>{ fmt.Sprintf("%d feeds · %s", data.FeedCount, data.LastSync) }</span>
+	</div>
+}
