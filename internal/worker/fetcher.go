@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	readability "codeberg.org/readeck/go-readability/v2"
 	"github.com/kontrolplane/feed/internal/store"
 	"github.com/mmcdole/gofeed"
 )
@@ -142,6 +143,19 @@ func (f *Fetcher) fetchFeed(ctx context.Context, parser *gofeed.Parser, feed sto
 			minutes = 3
 		}
 
+		body := entry.Content
+		if entry.Link != "" {
+			if extracted := f.extractArticle(entry.Link); extracted != "" {
+				body = extracted
+				// Recalculate word count and reading time from full content
+				wordCount = len(strings.Fields(stripHTML(body)))
+				minutes = wordCount / 200
+				if minutes < 1 {
+					minutes = 3
+				}
+			}
+		}
+
 		items = append(items, store.Item{
 			ID:       id,
 			FeedID:   feed.ID,
@@ -151,13 +165,29 @@ func (f *Fetcher) fetchFeed(ctx context.Context, parser *gofeed.Parser, feed sto
 			Date:     date,
 			Tag:      tag,
 			Abstract: abstract,
-			Body:     entry.Content,
+			Body:     body,
 			Link:     entry.Link,
 			Minutes:  minutes,
 		})
 	}
 
 	return items, nil
+}
+
+func (f *Fetcher) extractArticle(url string) string {
+	article, err := readability.FromURL(url, 15*time.Second)
+	if err != nil {
+		f.logger.Debug("readability extraction failed", slog.String("url", url), slog.Any("error", err))
+		return ""
+	}
+	if article.Node == nil {
+		return ""
+	}
+	var buf strings.Builder
+	if err := article.RenderHTML(&buf); err != nil {
+		return ""
+	}
+	return buf.String()
 }
 
 func stripHTML(s string) string {

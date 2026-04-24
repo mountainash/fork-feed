@@ -1,4 +1,4 @@
-/* ========== SSR FEED — BRAND: kontrolplane ========== */
+/* ========== kontrolplane/feed ========== */
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
@@ -66,13 +66,23 @@ input, textarea { font: inherit; color: inherit; }
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  transition: grid-template-columns 0.2s ease;
 }
+.app.sidebar-collapsed {
+  grid-template-columns: 0px minmax(380px, 460px) 1fr;
+}
+.app.list-collapsed {
+  grid-template-columns: 260px 0px 1fr;
+}
+.app.sidebar-collapsed.list-collapsed {
+  grid-template-columns: 0px 0px 1fr;
+}
+.app > * { min-width: 0; }
 
 /* ---------- TOPBAR ---------- */
 .topbar {
   grid-area: topbar;
-  display: grid;
-  grid-template-columns: 260px minmax(380px, 460px) 1fr;
+  display: flex;
   align-items: stretch;
   border-bottom: 1px solid var(--navy);
   background: var(--cream);
@@ -80,21 +90,21 @@ input, textarea { font: inherit; color: inherit; }
 .topbar .brand {
   display: flex; align-items: center; gap: 10px;
   padding: 0 18px;
+  width: 260px;
+  flex-shrink: 0;
   border-right: 1px solid var(--rule-strong);
   font-weight: 700;
   letter-spacing: -0.01em;
   font-family: var(--grot);
   font-size: 15px;
+  overflow: hidden;
+  white-space: nowrap;
 }
-.topbar .brand .stagger {
-  display: inline-flex; gap: 3px; height: 16px;
+.topbar .brand .brand-logo {
+  height: 18px;
+  width: auto;
+  flex-shrink: 0;
 }
-.topbar .brand .stagger i {
-  width: 4px; background: var(--navy); border-radius: 1px; display: inline-block;
-}
-.topbar .brand .stagger i:nth-child(1) { opacity: 1; }
-.topbar .brand .stagger i:nth-child(2) { opacity: 0.8; }
-.topbar .brand .stagger i:nth-child(3) { opacity: 0.6; }
 .topbar .brand small {
   font-family: var(--mono);
   font-weight: 500;
@@ -108,6 +118,8 @@ input, textarea { font: inherit; color: inherit; }
 .topbar .search {
   display: flex; align-items: center; gap: 10px;
   padding: 0 16px;
+  width: 420px;
+  flex-shrink: 0;
   border-right: 1px solid var(--rule-strong);
 }
 .topbar .search .prompt { opacity: 0.5; font-size: 12px; }
@@ -135,6 +147,8 @@ input, textarea { font: inherit; color: inherit; }
   display: flex; align-items: center; justify-content: flex-end;
   gap: 0;
   padding: 0;
+  flex: 1;
+  min-width: 0;
 }
 .topbar .tools .btn {
   height: 100%;
@@ -164,9 +178,18 @@ input, textarea { font: inherit; color: inherit; }
   grid-area: sidebar;
   border-right: 1px solid var(--navy);
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 0 40px 0;
   background: var(--cream);
+  position: relative;
+  transition: opacity 0.2s ease;
 }
+.sidebar-collapsed .sidebar {
+  overflow: hidden;
+  padding: 0;
+  border-right: none;
+}
+.sidebar-collapsed .sidebar > * { display: none; }
 .sidebar section { padding: 18px 18px 8px 18px; }
 .sidebar section + section { border-top: 1px solid var(--rule); }
 .sidebar h5 {
@@ -293,7 +316,14 @@ input, textarea { font: inherit; color: inherit; }
   flex-direction: column;
   overflow: hidden;
   background: var(--cream);
+  position: relative;
+  transition: opacity 0.2s ease;
 }
+.list-collapsed .list {
+  overflow: hidden;
+  border-right: none;
+}
+.list-collapsed .list > * { display: none; }
 .list-head {
   padding: 16px 20px 14px 20px;
   border-bottom: 1px solid var(--rule-strong);
@@ -540,6 +570,7 @@ input, textarea { font: inherit; color: inherit; }
   line-height: 1.65;
   letter-spacing: -0.003em;
 }
+.reader .body img { max-width: 100%; height: auto; }
 .reader .body p { margin-bottom: 18px; text-wrap: pretty; }
 .reader .body h2 {
   font-family: var(--grot);
@@ -802,6 +833,23 @@ input, textarea { font: inherit; color: inherit; }
 .settings-grid .s-cell .opts button.on { background: var(--navy); color: var(--cream-2); }
 .settings-grid .s-cell .opts button:not(.on):hover { background: var(--cream-2); }
 
+.settings-grid .s-cell.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  user-select: none;
+}
+.settings-grid .s-cell.disabled .opts button {
+  cursor: default;
+}
+.settings-grid .s-cell.disabled .v::after {
+  content: ' (read-only)';
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
 /* Server info rows on settings */
 .server-info {
   margin-top: 16px;
@@ -837,7 +885,7 @@ input, textarea { font: inherit; color: inherit; }
   0% { background: rgba(201, 145, 53, 0.22); }
   100% { background: transparent; }
 }
-.htmx-added, .htmx-settling { animation: hx-flash 0.5s ease; }
+.list-body .htmx-added, .list-body .htmx-settling { animation: hx-flash 0.5s ease; }
 
 #modal:empty { display: none; }
 

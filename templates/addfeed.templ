@@ -20,10 +20,11 @@ templ AddFeedModal(folders []store.Folder) {
 						placeholder="https://example.com  or  https://example.com/feed.xml"
 						required
 					/>
-					<div id="probe-results"></div>
-					<div class="btns">
-						<button type="button" class="ghost" onclick="document.getElementById('modal').innerHTML=''">cancel</button>
-						<button type="submit" class="primary">probe →</button>
+					<div id="probe-results">
+						<div class="btns">
+							<button type="button" class="ghost" onclick="document.getElementById('modal').innerHTML=''">cancel</button>
+							<button type="submit" class="primary">probe →</button>
+						</div>
 					</div>
 				</form>
 			</div>
@@ -43,6 +44,13 @@ templ ProbeResults(url string, folders []store.Folder) {
 			<div class="dim">ok</div>
 		</div>
 	</div>
+	<label>name</label>
+	<input
+		type="text"
+		name="title"
+		value={ url }
+		placeholder="feed name"
+	/>
 	<label>place in folder</label>
 	<select name="folder">
 		for _, f := range folders {

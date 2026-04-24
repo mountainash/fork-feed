@@ -1,9 +1,8 @@
-.PHONY: build run dev clean templ tidy
+.PHONY: build run dev clean templ tidy deps
 
 # ---- variables ----
-BINARY   := kontrolplane-feed
-CMD      := ./cmd/server
-TEMPL    := $(shell which templ 2>/dev/null || echo "$(HOME)/go/bin/templ")
+BINARY := kontrolplane-feed
+CMD    := ./cmd/server
 
 # ---- build ----
 build: templ
@@ -12,12 +11,12 @@ build: templ
 run: build
 	./$(BINARY)
 
-dev: build
-	SEED=true DEBUG=true ./$(BINARY)
+dev:
+	air
 
 # ---- codegen ----
 templ:
-	$(TEMPL) generate
+	docker run -v `pwd`:/templates -w=/templates ghcr.io/a-h/templ:latest generate
 
 # ---- deps ----
 tidy:
@@ -25,8 +24,10 @@ tidy:
 
 deps:
 	go install github.com/a-h/templ/cmd/templ@latest
+	go install github.com/air-verse/air@latest
 	go mod tidy
 
 # ---- clean ----
 clean:
-	rm -f $(BINARY) feed.db
+	rm -f $(BINARY) feed.db feed.db-shm feed.db-wal
+	rm -rf tmp/

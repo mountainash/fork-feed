@@ -261,13 +261,17 @@ func (h *Handler) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 	folder := r.FormValue("folder")
 
 	if feedURL != "" && folder != "" {
+		title := r.FormValue("title")
+		if title == "" {
+			title = feedURL
+		}
 		id := strings.ReplaceAll(strings.TrimPrefix(strings.TrimPrefix(feedURL, "https://"), "http://"), "/", "-")
 		if len(id) > 32 {
 			id = id[:32]
 		}
 		h.store.AddFeed(ctx, store.Feed{
 			ID:     id,
-			Title:  feedURL,
+			Title:  title,
 			URL:    feedURL,
 			Folder: folder,
 		})

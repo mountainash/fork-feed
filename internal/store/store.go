@@ -195,10 +195,9 @@ func (s *Store) ListItems(ctx context.Context, f ListFilter) ([]Item, error) {
 		case "starred":
 			where = append(where, "i.starred = 1")
 		case "today":
-			today := time.Now().Format("2006-01-02")
 			yesterday := time.Now().Add(-24 * time.Hour).Format("2006-01-02")
-			where = append(where, "(i.date = ? OR i.date = ?)")
-			args = append(args, today, yesterday)
+			where = append(where, "i.date >= ?")
+			args = append(args, yesterday)
 		}
 	}
 
@@ -274,9 +273,8 @@ func (s *Store) Counts(ctx context.Context) (Counts, error) {
 		return c, err
 	}
 
-	today := time.Now().Format("2006-01-02")
 	yesterday := time.Now().Add(-24 * time.Hour).Format("2006-01-02")
-	if err := s.db.QueryRow(ctx, s.ph("SELECT COUNT(*) FROM items WHERE date=? OR date=?"), today, yesterday).Scan(&c.Today); err != nil {
+	if err := s.db.QueryRow(ctx, s.ph("SELECT COUNT(*) FROM items WHERE date >= ?"), yesterday).Scan(&c.Today); err != nil {
 		return c, err
 	}
 

@@ -3,3 +3,4 @@ feed.db-shm
 feed.db-wal
 kontrolplane-feed
 .env
+tmp/

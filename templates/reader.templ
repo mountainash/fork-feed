@@ -6,15 +6,7 @@ import "fmt"
 templ Reader(data ReaderData) {
 	if data.Item == nil {
 		<section class="reader" id="reader">
-			<div class="empty">
-				<div class="stagger"><i></i><i></i><i></i></div>
-				<div class="big">pick an item.</div>
-				<div style="font-size:11px;letter-spacing:0.08em;opacity:0.7;margin-top:10px">
-					<span class="inline-kbd">j</span> / <span class="inline-kbd">k</span> navigate ·
-					<span class="inline-kbd">o</span> open ·
-					<span class="inline-kbd">s</span> star
-				</div>
-			</div>
+			@readerEmpty()
 		</section>
 	} else {
 		@readerContent(data.Item, data.Feed)
@@ -98,6 +90,18 @@ templ readerContent(item *store.Item, feed *store.Feed) {
 			</div>
 		</div>
 	</section>
+}
+
+templ readerEmpty() {
+	<div class="empty">
+		<div class="stagger"><i></i><i></i><i></i></div>
+		<div class="big">pick an item.</div>
+		<div style="font-size:11px;letter-spacing:0.08em;opacity:0.7;margin-top:10px">
+			<span class="inline-kbd">j</span> / <span class="inline-kbd">k</span> navigate ·
+			<span class="inline-kbd">o</span> open ·
+			<span class="inline-kbd">s</span> star
+		</div>
+	</div>
 }
 
 templ placeholderBody() {

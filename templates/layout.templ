@@ -8,16 +8,23 @@ templ Layout() {
 		<meta name="viewport" content="width=device-width,initial-scale=1"/>
 		<title>kontrolplane/feed - rss, without the noise</title>
 		<link rel="stylesheet" href="/static/css/styles.css"/>
+		<link rel="icon" href="/static/assets/favicon.ico" type="image/x-icon"/>
 		<script>
 			(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();
 			function setTheme(t){localStorage.setItem('theme',t);if(t==='dark'){document.documentElement.setAttribute('data-theme','dark')}else{document.documentElement.removeAttribute('data-theme')}document.querySelectorAll('#theme-opts button').forEach(function(b){b.classList.remove('on')});var el=document.getElementById('theme-'+t);if(el)el.classList.add('on');}
+			function togglePane(pane){
+				var app=document.querySelector('.app');
+				var cls=pane+'-collapsed';
+				app.classList.toggle(cls);
+				localStorage.setItem(pane+'-collapsed',app.classList.contains(cls)?'1':'0');
+			}
 		</script>
 	</head>
 	<body>
 		<div class="app">
 			<header class="topbar">
 				<div class="brand">
-					<span class="stagger"><i></i><i></i><i></i></span>
+					<img src="/static/assets/logo.png" alt="" class="brand-logo"/>
 					kontrolplane/feed
 				</div>
 				<div class="search">
@@ -57,7 +64,15 @@ templ Layout() {
 		</div>
 		<div id="modal"></div>
 		<script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js" crossorigin="anonymous"></script>
-		<script src="/static/js/hotkeys.js"></script>
+		<script src="/static/js/hotkeys.js?v=5"></script>
+		<script>
+			(function(){
+				var app=document.querySelector('.app');
+				['sidebar','list'].forEach(function(p){
+					if(localStorage.getItem(p+'-collapsed')==='1')app.classList.add(p+'-collapsed');
+				});
+			})();
+		</script>
 	</body>
 	</html>
 }

@@ -14,7 +14,7 @@ templ Settings() {
 				<h1>settings.</h1>
 				<div class="byline">no account. no sync. your reading data lives in this sqlite db.</div>
 				<div class="settings-grid">
-					<div class="s-cell">
+					<div class="s-cell disabled">
 						<div class="k">[ reading / mark-read-on ]</div>
 						<div class="v">when items become read</div>
 						<div class="opts">
@@ -23,7 +23,7 @@ templ Settings() {
 							<button>manual</button>
 						</div>
 					</div>
-					<div class="s-cell">
+					<div class="s-cell disabled">
 						<div class="k">[ refresh / cadence ]</div>
 						<div class="v">how often to fetch</div>
 						<div class="opts">
@@ -33,7 +33,7 @@ templ Settings() {
 							<button>manual</button>
 						</div>
 					</div>
-					<div class="s-cell">
+					<div class="s-cell disabled">
 						<div class="k">[ retention / history ]</div>
 						<div class="v">keep read items for</div>
 						<div class="opts">
@@ -43,7 +43,7 @@ templ Settings() {
 							<button>forever</button>
 						</div>
 					</div>
-					<div class="s-cell">
+					<div class="s-cell disabled">
 						<div class="k">[ display / density ]</div>
 						<div class="v">list row height</div>
 						<div class="opts">
@@ -70,7 +70,7 @@ templ Settings() {
 				</div>
 				<h2 style="font-family:var(--grot);font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-top:48px;margin-bottom:14px">server</h2>
 				<div class="server-info">
-					<div class="srow"><span class="k">binary</span><span>ssr-feed 1.0.0 · go 1.22 · darwin/arm64</span></div>
+					<div class="srow"><span class="k">binary</span><span>kontrolplane-feed 1.0.0 · go · darwin/arm64</span></div>
 					<div class="srow"><span class="k">router</span><span>net/http.ServeMux</span></div>
 					<div class="srow"><span class="k">templ</span><span>a-h/templ</span></div>
 					<div class="srow"><span class="k">parser</span><span>mmcdole/gofeed</span></div>

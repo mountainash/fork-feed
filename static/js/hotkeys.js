@@ -1,5 +1,20 @@
 // hotkeys.js — keyboard shortcuts for kontrolplane/feed
-// in a real Go app this lives in static/js/ and calls htmx.ajax() directly.
+
+function activateItem(el) {
+  var prev = document.querySelector(".list-body .item.active");
+  if (prev) prev.classList.remove("active");
+  if (el) {
+    el.classList.add("active");
+    el.scrollIntoView({ block: "nearest" });
+  }
+}
+
+// Set active on any item click
+document.addEventListener("click", function (e) {
+  var item = e.target.closest(".list-body .item");
+  if (item) activateItem(item);
+});
+
 document.addEventListener("keydown", function (e) {
   var tag = (e.target.tagName || "").toLowerCase();
   if (tag === "input" || tag === "textarea" || tag === "select") {
@@ -28,7 +43,10 @@ document.addEventListener("keydown", function (e) {
       e.key === "j"
         ? Math.min(items.length - 1, idx + 1)
         : Math.max(0, idx - 1);
-    if (items[next]) items[next].click();
+    if (items[next]) {
+      activateItem(items[next]);
+      items[next].click();
+    }
     return;
   }
 
@@ -47,6 +65,16 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "o" || e.key === "Enter") {
     var activeItem = document.querySelector(".list-body .item.active");
     if (activeItem) activeItem.click();
+    return;
+  }
+
+  if (e.key === "1") {
+    togglePane("sidebar");
+    return;
+  }
+
+  if (e.key === "2") {
+    togglePane("list");
     return;
   }
 });

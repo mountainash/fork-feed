@@ -14,9 +14,15 @@ func Seed(ctx context.Context, s *Store) error {
 
 	feeds := []Feed{
 		{
-			ID:     "hn-front",
-			Title:  "hacker news / front",
+			ID:     "hacker-news",
+			Title:  "hacker news",
 			URL:    "https://news.ycombinator.com/rss",
+			Folder: "default",
+		},
+		{
+			ID:     "cncf",
+			Title:  "cloud native computing foundation",
+			URL:    "http://cncf.io/feed",
 			Folder: "default",
 		},
 	}

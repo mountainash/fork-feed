@@ -68,7 +68,6 @@ templ ItemRow(item store.Item, idx int, feed *store.Feed) {
 		hx-get={ "/items/" + item.ID }
 		hx-target="#reader"
 		hx-swap="outerHTML"
-		hx-push-url={ "/items/" + item.ID }
 	>
 		<div class="n">{ Pad2(idx + 1) }</div>
 		<div class="main">

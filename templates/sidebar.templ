@@ -32,44 +32,48 @@ script showDeleteConfirm(feedID string, feedTitle string) {
 
 templ Sidebar(data SidebarData) {
 	<aside class="sidebar" id="sidebar">
-		<section>
-			<h5><span>[ views ]</span></h5>
-			@sidebarView("01", "all items", "all", data.Counts.All, data.View)
-			@sidebarView("02", "unread", "unread", data.Counts.Unread, data.View)
-			@sidebarView("03", "read", "read", data.Counts.Read, data.View)
-			@sidebarView("04", "starred", "starred", data.Counts.Starred, data.View)
-			@sidebarView("05", "today", "today", data.Counts.Today, data.View)
-		</section>
-		<section>
-			<h5>
-				<span>[ folders ]</span>
-				<a
-					class="add"
-					hx-get="/feeds/new"
-					hx-target="#modal"
-					hx-swap="innerHTML"
-					title="add feed"
-				>＋</a>
-			</h5>
-			for i, folder := range data.Folders {
-				@sidebarFolder(folder, i, data.Feeds, data.Counts, data.View)
-			}
-		</section>
-		<section>
-			<h5><span>[ system ]</span></h5>
-			<a
-				class={ "nav-item", templ.KV("active", data.View.Kind == "view" && data.View.ID == "settings") }
-				hx-get="/settings"
-				hx-target="#main"
-				hx-swap="outerHTML"
-				hx-push-url="/settings"
-			>
-				<span class="g">✦</span>
-				<span>settings</span>
-				<span class="c">v1.0</span>
-			</a>
-		</section>
+		@sidebarInner(data)
 	</aside>
+}
+
+templ sidebarInner(data SidebarData) {
+	<section>
+		<h5><span>[ views ]</span></h5>
+		@sidebarView("01", "all items", "all", data.Counts.All, data.View)
+		@sidebarView("02", "unread", "unread", data.Counts.Unread, data.View)
+		@sidebarView("03", "read", "read", data.Counts.Read, data.View)
+		@sidebarView("04", "starred", "starred", data.Counts.Starred, data.View)
+		@sidebarView("05", "today", "today", data.Counts.Today, data.View)
+	</section>
+	<section>
+		<h5>
+			<span>[ folders ]</span>
+			<a
+				class="add"
+				hx-get="/feeds/new"
+				hx-target="#modal"
+				hx-swap="innerHTML"
+				title="add feed"
+			>＋</a>
+		</h5>
+		for i, folder := range data.Folders {
+			@sidebarFolder(folder, i, data.Feeds, data.Counts, data.View)
+		}
+	</section>
+	<section>
+		<h5><span>[ system ]</span></h5>
+		<a
+			class={ "nav-item", templ.KV("active", data.View.Kind == "view" && data.View.ID == "settings") }
+			hx-get="/settings"
+			hx-target="#main"
+			hx-swap="outerHTML"
+			hx-push-url="/settings"
+		>
+			<span class="g">✦</span>
+			<span>settings</span>
+			<span class="c">v1.0</span>
+		</a>
+	</section>
 }
 
 templ sidebarView(num, label, id string, count int, view ViewState) {

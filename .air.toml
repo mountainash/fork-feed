@@ -1,0 +1,16 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  bin = "SEED=true DEBUG=true ./tmp/main"
+  cmd = "templ generate && go build -o ./tmp/main ./cmd/server"
+  delay = 500
+  exclude_dir = ["tmp", "node_modules", ".git"]
+  exclude_regex = ["_templ\\.go$"]
+  include_ext = ["go", "templ", "css", "js"]
+  include_dir = ["cmd", "internal", "templates", "static"]
+  kill_delay = "1s"
+  send_interrupt = true
+
+[misc]
+  clean_on_exit = true

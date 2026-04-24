@@ -31,7 +31,7 @@ func AddFeedModal(folders []store.Folder) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"scrim\" onclick=\"document.getElementById('modal').innerHTML=''\"><div class=\"modal\" onclick=\"event.stopPropagation()\"><div class=\"modal-head\"><span>[ subscribe / add feed ]</span> <span class=\"close\" onclick=\"document.getElementById('modal').innerHTML=''\">✕</span></div><div class=\"modal-body\"><h2>add a source.</h2><div class=\"sub\">paste a site url or a direct rss / atom link. gofeed will probe.</div><form hx-post=\"/feeds/probe\" hx-target=\"#probe-results\" hx-swap=\"innerHTML\"><label>source url</label> <input type=\"url\" name=\"url\" placeholder=\"https://example.com  or  https://example.com/feed.xml\" required><div id=\"probe-results\"></div><div class=\"btns\"><button type=\"button\" class=\"ghost\" onclick=\"document.getElementById('modal').innerHTML=''\">cancel</button> <button type=\"submit\" class=\"primary\">probe →</button></div></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"scrim\" onclick=\"document.getElementById('modal').innerHTML=''\"><div class=\"modal\" onclick=\"event.stopPropagation()\"><div class=\"modal-head\"><span>[ subscribe / add feed ]</span> <span class=\"close\" onclick=\"document.getElementById('modal').innerHTML=''\">✕</span></div><div class=\"modal-body\"><h2>add a source.</h2><div class=\"sub\">paste a site url or a direct rss / atom link. gofeed will probe.</div><form hx-post=\"/feeds/probe\" hx-target=\"#probe-results\" hx-swap=\"innerHTML\"><label>source url</label> <input type=\"url\" name=\"url\" placeholder=\"https://example.com  or  https://example.com/feed.xml\" required><div id=\"probe-results\"><div class=\"btns\"><button type=\"button\" class=\"ghost\" onclick=\"document.getElementById('modal').innerHTML=''\">cancel</button> <button type=\"submit\" class=\"primary\">probe →</button></div></div></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -67,7 +67,7 @@ func ProbeResults(url string, folders []store.Folder) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(url)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 38, Col: 53}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 39, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -80,49 +80,62 @@ func ProbeResults(url string, folders []store.Folder) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(url)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 41, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 42, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " · [ rss/atom ]</div></div><div class=\"dim\">ok</div></div></div><label>place in folder</label> <select name=\"folder\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " · [ rss/atom ]</div></div><div class=\"dim\">ok</div></div></div><label>name</label> <input type=\"text\" name=\"title\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(url)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 51, Col: 13}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" placeholder=\"feed name\"> <label>place in folder</label> <select name=\"folder\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, f := range folders {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<option value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(f.ID)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 49, Col: 23}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<option value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(f.Label)
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(f.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 49, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 57, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(f.Label)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 57, Col: 35}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<option value=\"__new__\">+ new folder…</option></select><div class=\"btns\" style=\"margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)\"><button type=\"button\" class=\"ghost\" onclick=\"document.getElementById('modal').innerHTML=''\">cancel</button> <button class=\"primary\" hx-post=\"/feeds/subscribe\" hx-include=\"closest form\" hx-target=\"#sidebar\" hx-swap=\"outerHTML\" onclick=\"setTimeout(function(){ document.getElementById('modal').innerHTML=''; }, 200)\">subscribe →</button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<option value=\"__new__\">+ new folder…</option></select><div class=\"btns\" style=\"margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)\"><button type=\"button\" class=\"ghost\" onclick=\"document.getElementById('modal').innerHTML=''\">cancel</button> <button class=\"primary\" hx-post=\"/feeds/subscribe\" hx-include=\"closest form\" hx-target=\"#sidebar\" hx-swap=\"outerHTML\" onclick=\"setTimeout(function(){ document.getElementById('modal').innerHTML=''; }, 200)\">subscribe →</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
