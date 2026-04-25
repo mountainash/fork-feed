@@ -4,7 +4,7 @@ templ Page(data PageData) {
 	@Layout() {
 		@Sidebar(data.Sidebar)
 		if data.List.View.Kind == "view" && data.List.View.ID == "settings" {
-			@Settings()
+			@Settings(data.Settings)
 		} else if data.List.View.Kind == "view" && data.List.View.ID == "manage" {
 			@Manage(data.Manage)
 		} else {

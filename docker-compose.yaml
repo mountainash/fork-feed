@@ -1,0 +1,19 @@
+services:
+  feed:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_DRIVER=sqlite
+      - DATABASE_PATH=/data/feed.db
+      - REFRESH_INTERVAL=15m
+      - MARK_READ_ON=open
+      - RETENTION=30d
+      - DENSITY=default
+      - DEVELOPMENT_SEED=true
+    volumes:
+      - feed-data:/data
+    restart: unless-stopped
+
+volumes:
+  feed-data:

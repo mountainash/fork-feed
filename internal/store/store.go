@@ -341,6 +341,18 @@ func (s *Store) DeleteFeed(ctx context.Context, id string) error {
 	return s.db.Exec(ctx, s.ph("DELETE FROM feeds WHERE id=?"), id)
 }
 
+func (s *Store) DeleteFolder(ctx context.Context, id string) error {
+	// Delete all items belonging to feeds in this folder
+	if err := s.db.Exec(ctx, s.ph("DELETE FROM items WHERE folder=?"), id); err != nil {
+		return err
+	}
+	// Delete all feeds in this folder
+	if err := s.db.Exec(ctx, s.ph("DELETE FROM feeds WHERE folder=?"), id); err != nil {
+		return err
+	}
+	return s.db.Exec(ctx, s.ph("DELETE FROM folders WHERE id=?"), id)
+}
+
 func (s *Store) FeedCount(ctx context.Context) (int, error) {
 	var n int
 	err := s.db.QueryRow(ctx, "SELECT COUNT(*) FROM feeds").Scan(&n)

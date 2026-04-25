@@ -63,7 +63,7 @@ func main() {
 	defer pool.Close()
 
 	// Run migrations
-	if err := database.Migrate(ctx, pool, cfg.DatabaseDriver, logger); err != nil {
+	if err := database.Migrate(ctx, cfg, logger); err != nil {
 		logger.Error("failed to run database migration", slog.Any("error", err))
 		os.Exit(1)
 	}
@@ -88,7 +88,7 @@ func main() {
 	}
 
 	// Create handler
-	h := handler.New(s, logger)
+	h := handler.New(s, logger, cfg)
 
 	// Start background feed fetcher
 	fetcher := worker.NewFetcher(s, logger, cfg.RefreshInterval, func(t time.Time) {

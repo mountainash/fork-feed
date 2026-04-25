@@ -21,6 +21,12 @@ templ Manage(data ManageData) {
 						hx-target="#modal"
 						hx-swap="innerHTML"
 					>＋ add feed</button>
+					<button
+						class="manage-add"
+						hx-get="/folders/new"
+						hx-target="#modal"
+						hx-swap="innerHTML"
+					>＋ add folder</button>
 				</div>
 				for _, folder := range data.Folders {
 					@manageFolder(folder, data.Feeds)
@@ -32,8 +38,18 @@ templ Manage(data ManageData) {
 }
 
 templ manageFolder(folder store.Folder, feeds []store.Feed) {
-	<div class="manage-folder">
-		<div class="manage-folder-head">[ { folder.Label } ]</div>
+	<div class="manage-folder" id={ "manage-folder-" + folder.ID }>
+		<div class="manage-folder-head">
+			<span>[ { folder.Label } ]</span>
+			if folder.ID != "default" {
+				<button
+					class="manage-folder-del"
+					hx-get={ "/folders/" + folder.ID + "/confirm-delete" }
+					hx-target={ "#manage-folder-" + folder.ID }
+					hx-swap="outerHTML"
+				>remove</button>
+			}
+		</div>
 		<div class="manage-grid">
 			for _, feed := range feeds {
 				if feed.Folder == folder.ID {
@@ -121,5 +137,32 @@ templ ManageFeedEdit(feed store.Feed, folders []store.Folder) {
 				<button type="submit" class="manage-btn primary">save</button>
 			</div>
 		</form>
+	</div>
+}
+
+templ ManageFolderConfirmDelete(folder store.Folder, feedCount int) {
+	<div class="manage-folder confirming" id={ "manage-folder-" + folder.ID }>
+		<div class="manage-card" style="border-color:var(--err)">
+			<div class="manage-card-body">
+				<div class="manage-card-warn">remove folder?</div>
+				<div class="manage-card-warn-sub">
+					delete <strong>{ folder.Label }</strong> and all its feeds ({ fmt.Sprintf("%d", feedCount) } feeds and their items). this cannot be undone.
+				</div>
+			</div>
+			<div class="manage-card-footer">
+				<button
+					class="manage-btn"
+					hx-get="/manage"
+					hx-target="#main"
+					hx-swap="outerHTML"
+				>cancel</button>
+				<button
+					class="manage-btn danger-fill"
+					hx-delete={ "/folders/" + folder.ID }
+					hx-target="#main"
+					hx-swap="outerHTML"
+				>remove folder →</button>
+			</div>
+		</div>
 	</div>
 }

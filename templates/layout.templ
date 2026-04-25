@@ -23,10 +23,10 @@ templ Layout() {
 	<body>
 		<div class="app">
 			<header class="topbar">
-				<div class="brand">
+				<a class="brand" href="/" onclick="document.querySelector('.app').classList.remove('sidebar-collapsed','list-collapsed');localStorage.removeItem('sidebar-collapsed');localStorage.removeItem('list-collapsed');">
 					<img src="/static/assets/logo.png" alt="" class="brand-logo"/>
 					kontrolplane/feed
-				</div>
+				</a>
 				<div class="search">
 					<span class="prompt">/</span>
 					<input
@@ -44,10 +44,16 @@ templ Layout() {
 				<div class="tools">
 					<button
 						class="btn"
+						hx-get="/folders/new"
+						hx-target="#modal"
+						hx-swap="innerHTML"
+					>＋ folder</button>
+					<button
+						class="btn"
 						hx-get="/feeds/new"
 						hx-target="#modal"
 						hx-swap="innerHTML"
-					>＋ add feed</button>
+					>＋ feed</button>
 					<button
 						class="btn"
 						hx-get="/partials/list"

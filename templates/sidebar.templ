@@ -29,10 +29,10 @@ templ sidebarInner(data SidebarData) {
 			<span>[ folders ]</span>
 			<a
 				class="add"
-				hx-get="/feeds/new"
+				hx-get="/folders/new"
 				hx-target="#modal"
 				hx-swap="innerHTML"
-				title="add feed"
+				title="add folder"
 			>＋</a>
 		</h5>
 		for i, folder := range data.Folders {

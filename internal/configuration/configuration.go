@@ -7,7 +7,7 @@ type FeedServiceConfiguration struct {
 	RefreshInterval time.Duration `env:"REFRESH_INTERVAL" envDefault:"15m"`
 
 	// Database driver: "sqlite" (default) or "postgres"
-	DatabaseDriver   string `env:"DATABASE_DRIVER" envDefault:"sqlite"`
+	DatabaseDriver string `env:"DATABASE_DRIVER" envDefault:"sqlite"`
 
 	// SQLite configuration
 	DatabasePath string `env:"DATABASE_PATH" envDefault:"feed.db"`
@@ -20,6 +20,11 @@ type FeedServiceConfiguration struct {
 	DatabasePort     string `env:"DATABASE_PORT" envDefault:"5432"`
 	DatabaseSslMode  string `env:"DATABASE_SSL_MODE" envDefault:"disable"`
 
-	Debug bool `env:"DEBUG" envDefault:"false"`
-	Seed  bool `env:"SEED" envDefault:"false"`
+	// Reading behaviour
+	MarkReadOn string `env:"MARK_READ_ON" envDefault:"open"`    // "scroll", "open", "manual"
+	Retention  string `env:"RETENTION" envDefault:"30d"`         // "7d", "30d", "90d", "forever"
+	Density    string `env:"DENSITY" envDefault:"default"`       // "tight", "default", "loose"
+
+	Debug bool `env:"DEVELOPMENT_DEBUG" envDefault:"false"`
+	Seed  bool `env:"DEVELOPMENT_SEED" envDefault:"false"`
 }

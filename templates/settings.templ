@@ -1,6 +1,6 @@
 package templates
 
-templ Settings() {
+templ Settings(data SettingsData) {
 	<main class="settings-page" id="main">
 		<section class="reader">
 			<div class="reader-inner">
@@ -9,47 +9,46 @@ templ Settings() {
 					<span class="sep">·</span>
 					<span>live</span>
 					<span class="sep">·</span>
-					<span>sqlite · local</span>
+					<span>{ data.DatabaseDriver }</span>
 				</div>
 				<h1>settings.</h1>
-				<div class="byline">no account. no sync. your reading data lives in this sqlite db.</div>
+				<div class="byline">no account. no sync. your reading data lives in your { data.DatabaseDriver } database.</div>
 				<div class="settings-grid">
 					<div class="s-cell disabled">
 						<div class="k">[ reading / mark-read-on ]</div>
 						<div class="v">when items become read</div>
 						<div class="opts">
-							<button class="on">scroll</button>
-							<button>open</button>
-							<button>manual</button>
+							<button class={ templ.KV("on", data.MarkReadOn == "scroll") }>scroll</button>
+							<button class={ templ.KV("on", data.MarkReadOn == "open") }>open</button>
+							<button class={ templ.KV("on", data.MarkReadOn == "manual") }>manual</button>
 						</div>
 					</div>
 					<div class="s-cell disabled">
 						<div class="k">[ refresh / cadence ]</div>
 						<div class="v">how often to fetch</div>
 						<div class="opts">
-							<button>5m</button>
-							<button class="on">15m</button>
-							<button>1h</button>
-							<button>manual</button>
+							<button class={ templ.KV("on", data.RefreshInterval == "5m0s") }>5m</button>
+							<button class={ templ.KV("on", data.RefreshInterval == "15m0s") }>15m</button>
+							<button class={ templ.KV("on", data.RefreshInterval == "1h0m0s") }>1h</button>
 						</div>
 					</div>
 					<div class="s-cell disabled">
 						<div class="k">[ retention / history ]</div>
 						<div class="v">keep read items for</div>
 						<div class="opts">
-							<button>7d</button>
-							<button class="on">30d</button>
-							<button>90d</button>
-							<button>forever</button>
+							<button class={ templ.KV("on", data.Retention == "7d") }>7d</button>
+							<button class={ templ.KV("on", data.Retention == "30d") }>30d</button>
+							<button class={ templ.KV("on", data.Retention == "90d") }>90d</button>
+							<button class={ templ.KV("on", data.Retention == "forever") }>forever</button>
 						</div>
 					</div>
 					<div class="s-cell disabled">
 						<div class="k">[ display / density ]</div>
 						<div class="v">list row height</div>
 						<div class="opts">
-							<button>tight</button>
-							<button class="on">default</button>
-							<button>loose</button>
+							<button class={ templ.KV("on", data.Density == "tight") }>tight</button>
+							<button class={ templ.KV("on", data.Density == "default") }>default</button>
+							<button class={ templ.KV("on", data.Density == "loose") }>loose</button>
 						</div>
 					</div>
 					<div class="s-cell">
@@ -70,11 +69,12 @@ templ Settings() {
 				</div>
 				<h2 style="font-family:var(--grot);font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-top:48px;margin-bottom:14px">server</h2>
 				<div class="server-info">
-					<div class="srow"><span class="k">binary</span><span>kontrolplane-feed · go · darwin/arm64</span></div>
+					<div class="srow"><span class="k">binary</span><span>kontrolplane-feed · go</span></div>
 					<div class="srow"><span class="k">router</span><span>net/http.ServeMux</span></div>
 					<div class="srow"><span class="k">templ</span><span>a-h/templ</span></div>
 					<div class="srow"><span class="k">parser</span><span>mmcdole/gofeed</span></div>
-					<div class="srow"><span class="k">db</span><span>sqlite3 · feed.db</span></div>
+					<div class="srow"><span class="k">db</span><span>{ data.DatabaseDriver } · { data.DatabaseInfo }</span></div>
+					<div class="srow"><span class="k">refresh</span><span>{ data.RefreshInterval }</span></div>
 				</div>
 				<h2 style="font-family:var(--grot);font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-top:48px;margin-bottom:14px">keyboard</h2>
 				<div style="display:grid;grid-template-columns:100px 1fr;row-gap:10px;column-gap:18px;font-family:var(--mono);font-size:12px;padding-top:16px;border-top:1px solid var(--rule-strong)">

@@ -13,8 +13,8 @@ tmp_dir = "tmp"
   send_interrupt = true
 
 [build.env]
-  SEED = "true"
-  DEBUG = "true"
+  DEVELOPMENT_SEED = "true"
+  DEVELOPMENT_DEBUG = "true"
 
 [misc]
   clean_on_exit = true

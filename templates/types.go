@@ -39,15 +39,25 @@ type StatusData struct {
 	LastSync    string
 }
 
+type SettingsData struct {
+	DatabaseDriver  string
+	DatabaseInfo    string
+	RefreshInterval string
+	MarkReadOn      string
+	Retention       string
+	Density         string
+}
+
 type ManageData struct {
 	Feeds   []store.Feed
 	Folders []store.Folder
 }
 
 type PageData struct {
-	Sidebar SidebarData
-	List    ListData
-	Reader  ReaderData
-	Status  StatusData
-	Manage  ManageData
+	Sidebar  SidebarData
+	List     ListData
+	Reader   ReaderData
+	Status   StatusData
+	Manage   ManageData
+	Settings SettingsData
 }

@@ -109,7 +109,7 @@ func sidebarInner(data SidebarData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><section><h5><span>[ folders ]</span> <a class=\"add\" hx-get=\"/feeds/new\" hx-target=\"#modal\" hx-swap=\"innerHTML\" title=\"add feed\">＋</a></h5>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><section><h5><span>[ folders ]</span> <a class=\"add\" hx-get=\"/folders/new\" hx-target=\"#modal\" hx-swap=\"innerHTML\" title=\"add folder\">＋</a></h5>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

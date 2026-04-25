@@ -29,6 +29,9 @@ All configuration is via environment variables.
 | Variable | Description | Default |
 |---|---|---|
 | `PORT` | HTTP listen port | `8080` |
+| `MARK_READ_ON` | When items become read: `scroll`, `open`, `manual` | `open` |
+| `RETENTION` | Keep read items for: `7d`, `30d`, `90d`, `forever` | `30d` |
+| `DENSITY` | List row density: `tight`, `default`, `loose` | `default` |
 | `REFRESH_INTERVAL` | How often to fetch feeds | `15m` |
 | `DATABASE_DRIVER` | `sqlite` or `postgres` | `sqlite` |
 | `DATABASE_PATH` | SQLite file path | `feed.db` |
@@ -38,8 +41,8 @@ All configuration is via environment variables.
 | `DATABASE_USER` | PostgreSQL user | `postgres` |
 | `DATABASE_PASSWORD` | PostgreSQL password | `password` |
 | `DATABASE_SSL_MODE` | PostgreSQL SSL mode | `disable` |
-| `DEBUG` | Enable debug logging | `false` |
-| `SEED` | Seed default feeds on startup | `false` |
+| `DEVELOPMENT_DEBUG` | Enable debug logging | `false` |
+| `DEVELOPMENT_SEED` | Seed default feeds on startup | `false` |
 
 ## deployment
 

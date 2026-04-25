@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
+	"github.com/kontrolplane/feed/internal/configuration"
 	"github.com/kontrolplane/feed/internal/store"
 	"github.com/kontrolplane/feed/templates"
 )
@@ -16,16 +17,18 @@ import (
 type Handler struct {
 	store     *store.Store
 	logger    *slog.Logger
+	cfg       configuration.FeedServiceConfiguration
 	viewState templates.ViewState
 	sort      string
 	query     string
 	lastSync  time.Time
 }
 
-func New(s *store.Store, logger *slog.Logger) *Handler {
+func New(s *store.Store, logger *slog.Logger, cfg configuration.FeedServiceConfiguration) *Handler {
 	return &Handler{
 		store:     s,
 		logger:    logger,
+		cfg:       cfg,
 		viewState: templates.ViewState{Kind: "view", ID: "unread"},
 		sort:      "newest",
 		lastSync:  time.Now(),
@@ -42,6 +45,10 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /v/{id}", h.handleIndex)
 	mux.HandleFunc("GET /items/{id}", h.handleItemPage)
 	mux.HandleFunc("GET /feeds/{id}", h.handleFeedOrNew)
+	mux.HandleFunc("GET /folders/new", h.handleAddFolderModal)
+	mux.HandleFunc("POST /folders", h.handleCreateFolder)
+	mux.HandleFunc("GET /folders/{id}/confirm-delete", h.handleConfirmDeleteFolder)
+	mux.HandleFunc("DELETE /folders/{id}", h.handleDeleteFolder)
 	mux.HandleFunc("GET /folders/{id}", h.handleFolderPage)
 
 	// partials for htmx
@@ -188,9 +195,10 @@ func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) handleSettings(w http.ResponseWriter, r *http.Request) {
+	sd := h.settingsData()
 	if h.isHTMX(r) {
 		h.viewState = templates.ViewState{Kind: "view", ID: "settings"}
-		h.renderComponent(w, r, templates.Settings())
+		h.renderComponent(w, r, templates.Settings(sd))
 		h.renderOOBSidebar(w, r)
 		h.renderOOBStatus(w, r)
 		return
@@ -212,6 +220,78 @@ func (h *Handler) handleManage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.renderFullPage(w, r, nil)
+}
+
+// ---------- folder management ----------
+
+func (h *Handler) handleAddFolderModal(w http.ResponseWriter, r *http.Request) {
+	h.renderComponent(w, r, templates.AddFolderModal())
+}
+
+func (h *Handler) handleCreateFolder(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	r.ParseForm()
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "name required", http.StatusBadRequest)
+		return
+	}
+
+	id := strings.ToLower(strings.ReplaceAll(name, " ", "-"))
+	count, _ := h.store.FolderCount(ctx)
+	h.store.UpsertFolder(ctx, store.Folder{ID: id, Label: name}, count)
+
+	sd := h.sidebarData(ctx)
+	h.renderComponent(w, r, templates.Sidebar(sd))
+}
+
+func (h *Handler) handleConfirmDeleteFolder(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := r.PathValue("id")
+
+	folders, _ := h.store.Folders(ctx)
+	var folder *store.Folder
+	for _, f := range folders {
+		if f.ID == id {
+			folder = &f
+			break
+		}
+	}
+	if folder == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	feeds, _ := h.store.Feeds(ctx)
+	var feedCount int
+	for _, f := range feeds {
+		if f.Folder == id {
+			feedCount++
+		}
+	}
+
+	h.renderComponent(w, r, templates.ManageFolderConfirmDelete(*folder, feedCount))
+}
+
+func (h *Handler) handleDeleteFolder(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := r.PathValue("id")
+
+	if err := h.store.DeleteFolder(ctx, id); err != nil {
+		h.logger.Error("delete folder", slog.String("id", id), slog.Any("err", err))
+		http.Error(w, "failed to delete folder", http.StatusInternalServerError)
+		return
+	}
+
+	if h.viewState.Kind == "folder" && h.viewState.ID == id {
+		h.viewState = templates.ViewState{Kind: "view", ID: "unread"}
+	}
+
+	h.viewState = templates.ViewState{Kind: "view", ID: "manage"}
+	md := h.manageData(ctx)
+	h.renderComponent(w, r, templates.Manage(md))
+	h.renderOOBSidebar(w, r)
+	h.renderOOBStatus(w, r)
 }
 
 // ---------- item actions ----------
@@ -449,11 +529,12 @@ func (h *Handler) renderFullPage(w http.ResponseWriter, r *http.Request, activeI
 	ctx := r.Context()
 
 	pd := templates.PageData{
-		Sidebar: h.sidebarData(ctx),
-		List:    h.listData(ctx),
-		Reader:  h.readerData(ctx, activeItem),
-		Status:  h.statusData(ctx),
-		Manage:  h.manageData(ctx),
+		Sidebar:  h.sidebarData(ctx),
+		List:     h.listData(ctx),
+		Reader:   h.readerData(ctx, activeItem),
+		Status:   h.statusData(ctx),
+		Manage:   h.manageData(ctx),
+		Settings: h.settingsData(),
 	}
 
 	templates.Page(pd).Render(ctx, w)
@@ -468,6 +549,24 @@ func (h *Handler) sidebarData(ctx context.Context) templates.SidebarData {
 		Feeds:   feeds,
 		Counts:  counts,
 		View:    h.viewState,
+	}
+}
+
+func (h *Handler) settingsData() templates.SettingsData {
+	var dbInfo string
+	switch h.cfg.DatabaseDriver {
+	case "postgres":
+		dbInfo = fmt.Sprintf("%s:%s/%s", h.cfg.DatabaseHost, h.cfg.DatabasePort, h.cfg.DatabaseName)
+	default:
+		dbInfo = h.cfg.DatabasePath
+	}
+	return templates.SettingsData{
+		DatabaseDriver:  h.cfg.DatabaseDriver,
+		DatabaseInfo:    dbInfo,
+		RefreshInterval: h.cfg.RefreshInterval.String(),
+		MarkReadOn:      h.cfg.MarkReadOn,
+		Retention:       h.cfg.Retention,
+		Density:         h.cfg.Density,
 	}
 }
 

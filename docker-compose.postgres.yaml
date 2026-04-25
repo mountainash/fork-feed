@@ -1,0 +1,43 @@
+services:
+  feed:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_DRIVER=postgres
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=feed
+      - DATABASE_USER=feed
+      - DATABASE_PASSWORD=feed
+      - DATABASE_SSL_MODE=disable
+      - REFRESH_INTERVAL=15m
+      - MARK_READ_ON=open
+      - RETENTION=30d
+      - DENSITY=default
+      - DEVELOPMENT_SEED=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=feed
+      - POSTGRES_USER=feed
+      - POSTGRES_PASSWORD=feed
+    command: ["postgres", "-c", "log_min_messages=FATAL"]
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U feed"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pg-data:

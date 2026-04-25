@@ -824,7 +824,23 @@ kbd, .inline-kbd {
 .manage-add:hover { background: var(--cream-2); }
 
 .manage-folder { margin-bottom: 36px; }
-.manage-folder-head { font-size: 10px; letter-spacing: 0.1em; opacity: 0.55; margin-bottom: 14px; }
+.manage-folder-head {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  opacity: 0.55;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.manage-folder-del {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  transition: opacity var(--ease);
+}
+.manage-folder:hover .manage-folder-del { opacity: 0.6; }
+.manage-folder-del:hover { opacity: 1; color: var(--err); }
 .manage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 /* card */
