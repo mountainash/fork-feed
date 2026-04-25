@@ -75,3 +75,9 @@ Open [http://localhost:8080](http://localhost:8080). The app seeds a couple of d
 ## license
 
 MIT
+
+<p align="center">
+  <a href="https://kontrolplane.dev">
+    <img width="1500" alt="kontrolplane footer" src="./assets/kontrolplane-footer.svg">
+  </a>
+</p>
