@@ -7,7 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/kontrolplane/feed/internal/configuration"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // SQLiteDB wraps a *sql.DB to implement the DB interface.
@@ -18,7 +18,7 @@ type SQLiteDB struct {
 func createSQLitePool(ctx context.Context, cfg configuration.FeedServiceConfiguration, logger *slog.Logger) (*SQLiteDB, error) {
 	dsn := cfg.DatabasePath + "?_journal_mode=WAL&_busy_timeout=5000"
 
-	db, err := sql.Open("sqlite3", dsn)
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		logger.Error("failed to open sqlite database", slog.Any("error", err))
 		return nil, fmt.Errorf("failed to open sqlite database: %w", err)

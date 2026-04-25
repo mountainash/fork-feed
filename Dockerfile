@@ -1,6 +1,5 @@
 FROM golang:1.25-alpine AS build
 
-RUN apk add --no-cache gcc musl-dev
 RUN go install github.com/a-h/templ/cmd/templ@latest
 
 WORKDIR /src
@@ -9,7 +8,7 @@ RUN go mod download
 COPY . .
 
 RUN templ generate
-RUN CGO_ENABLED=1 GOOS=linux go build -o /bin/kontrolplane-feed ./cmd/server
+RUN CGO_ENABLED=0 go build -o /bin/kontrolplane-feed ./cmd/server
 
 FROM alpine:3.21
 

@@ -22,7 +22,7 @@ func Migrate(ctx context.Context, cfg configuration.FeedServiceConfiguration, lo
 
 	switch cfg.DatabaseDriver {
 	case "sqlite":
-		dialect = "sqlite3"
+		dialect = "sqlite"
 		dsn = cfg.DatabasePath + "?_journal_mode=WAL&_busy_timeout=5000"
 	case "postgres":
 		dialect = "pgx"
