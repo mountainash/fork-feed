@@ -4,7 +4,11 @@ A self-hosted RSS reader built with Go, HTMX, and templ. A single binary serves 
 
 Supports full-text search, keyboard-first navigation, timeline filtering (today, yesterday, last week, last month), feed management with inline editing, OPML import/export, dark mode, and deploys to Kubernetes via the included Helm chart with optional CloudNativePG integration.
 
-<img width="1512" height="860" alt="image" src="https://github.com/user-attachments/assets/7c134cda-f1ee-4d56-928e-2d8417291d85" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/cd1c129a-bf15-402e-864b-1712022a9f31">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/ae1012c3-2d11-4cec-b32a-986951935da4">
+  <img alt="Description of your image" src="https://github.com/user-attachments/assets/ae1012c3-2d11-4cec-b32a-986951935da4">
+</picture>
 
 ## keyboard shortcuts
 
