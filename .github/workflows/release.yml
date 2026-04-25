@@ -72,19 +72,53 @@ jobs:
           repository: kontrolplane/helm-charts
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: update-appversion
+      - name: bump-versions
+        id: bump
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          sed -i "s/^appVersion:.*/appVersion: \"${VERSION}\"/" charts/feed/Chart.yaml
-          echo "Updated appVersion to ${VERSION}"
+          APP_VERSION="${GITHUB_REF_NAME#v}"
+
+          # read current chart version and bump patch
+          CURRENT=$(grep '^version:' charts/feed/Chart.yaml | awk '{print $2}')
+          MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+          MINOR=$(echo "$CURRENT" | cut -d. -f2)
+          PATCH=$(echo "$CURRENT" | cut -d. -f3)
+          NEXT_PATCH=$((PATCH + 1))
+          CHART_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}"
+
+          sed -i "s/^version:.*/version: ${CHART_VERSION}/" charts/feed/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"${APP_VERSION}\"/" charts/feed/Chart.yaml
+
+          echo "app_version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "chart_version=${CHART_VERSION}" >> "$GITHUB_OUTPUT"
+
+          echo "Updated appVersion to ${APP_VERSION}, chart version to ${CHART_VERSION}"
           cat charts/feed/Chart.yaml
 
-      - name: commit-and-push
+      - name: create-pull-request
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          APP_VERSION="${{ steps.bump.outputs.app_version }}"
+          CHART_VERSION="${{ steps.bump.outputs.chart_version }}"
+          BRANCH="feed/v${APP_VERSION}"
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
           git add charts/feed/Chart.yaml
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore(feed): bump application version to ${VERSION}"
-          git push
+          git commit -m "chore(feed): bump to app ${APP_VERSION}, chart ${CHART_VERSION}"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --repo kontrolplane/helm-charts \
+            --base main \
+            --head "$BRANCH" \
+            --title "feed: bump to v${APP_VERSION}" \
+            --body "$(cat <<EOF
+          Automated bump triggered by [kontrolplane/feed v${APP_VERSION}](https://github.com/kontrolplane/feed/releases/tag/v${APP_VERSION}).
+
+          - **appVersion**: \`${APP_VERSION}\`
+          - **chart version**: \`${CHART_VERSION}\`
+          EOF
+          )"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
