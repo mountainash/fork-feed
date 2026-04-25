@@ -78,21 +78,21 @@ jobs:
           APP_VERSION="${GITHUB_REF_NAME#v}"
 
           # read current chart version and bump patch
-          CURRENT=$(grep '^version:' charts/feed/Chart.yaml | awk '{print $2}')
+          CURRENT=$(grep '^version:' feed/Chart.yaml | awk '{print $2}')
           MAJOR=$(echo "$CURRENT" | cut -d. -f1)
           MINOR=$(echo "$CURRENT" | cut -d. -f2)
           PATCH=$(echo "$CURRENT" | cut -d. -f3)
           NEXT_PATCH=$((PATCH + 1))
           CHART_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}"
 
-          sed -i "s/^version:.*/version: ${CHART_VERSION}/" charts/feed/Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: \"${APP_VERSION}\"/" charts/feed/Chart.yaml
+          sed -i "s/^version:.*/version: ${CHART_VERSION}/" feed/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"${APP_VERSION}\"/" feed/Chart.yaml
 
           echo "app_version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
           echo "chart_version=${CHART_VERSION}" >> "$GITHUB_OUTPUT"
 
           echo "Updated appVersion to ${APP_VERSION}, chart version to ${CHART_VERSION}"
-          cat charts/feed/Chart.yaml
+          cat feed/Chart.yaml
 
       - name: create-pull-request
         run: |
@@ -103,7 +103,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add charts/feed/Chart.yaml
+          git add feed/Chart.yaml
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore(feed): bump to app ${APP_VERSION}, chart ${CHART_VERSION}"
           git push origin "$BRANCH"

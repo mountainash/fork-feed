@@ -1,4 +1,7 @@
-FROM golang:1.25-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS build
+
+ARG TARGETOS
+ARG TARGETARCH
 
 RUN go install github.com/a-h/templ/cmd/templ@latest
 
@@ -8,7 +11,7 @@ RUN go mod download
 COPY . .
 
 RUN templ generate
-RUN CGO_ENABLED=0 go build -o /bin/kontrolplane-feed ./cmd/server
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /bin/kontrolplane-feed ./cmd/server
 
 FROM alpine:3.21
 
