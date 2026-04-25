@@ -8,16 +8,12 @@ Supports full-text search, keyboard-first navigation, timeline filtering (today,
 
 ## keyboard shortcuts
 
-| Key | Action |
-|---|---|
-| `j` / `k` | Next / previous item |
-| `o` or `enter` | Open item in reader |
-| `s` | Toggle star |
-| `m` | Toggle read / unread |
-| `/` | Focus search |
-| `n` | Add new feed |
-| `1` | Toggle sidebar |
-| `2` | Toggle item list |
+| Key | Action | Key | Action |
+|---|---|---|---|
+| `j` / `k` | next / previous item | `s` | toggle star |
+| `o` / `enter` | open item in reader | `m` | toggle read / unread |
+| `/` | focus search | `n` | add new feed |
+| `1` | toggle sidebar | `2` | toggle item list |
 
 ## import / export
 
