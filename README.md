@@ -1,6 +1,8 @@
 # kontrolplane/feed
 
-A self-hosted RSS reader built with Go, HTMX, and templ. No JavaScript frameworks, no build step, no accounts - just your feeds in a fast, keyboard-driven interface.
+A self-hosted RSS reader built with Go, HTMX, and templ. A single binary serves a server-rendered three-pane UI over plain HTTP. A background worker fetches your feeds on a configurable interval, extracts full article content via readability, and stores everything in SQLite or PostgreSQL. The browser talks directly to Go route handlers that return HTML fragments - there is no client-side state. htmx swaps panes without full page reloads. Your reading data stays in a local database file or your own postgres instance, nowhere else.
+
+Supports full-text search, keyboard-first navigation, timeline filtering (today, yesterday, last week, last month), feed management with inline editing, OPML import/export, dark mode, and deploys to Kubernetes via the included Helm chart with optional CloudNativePG integration.
 
 <img width="1512" height="860" alt="image" src="https://github.com/user-attachments/assets/7c134cda-f1ee-4d56-928e-2d8417291d85" />
 
@@ -9,7 +11,7 @@ A self-hosted RSS reader built with Go, HTMX, and templ. No JavaScript framework
 | Key | Action |
 |---|---|
 | `j` / `k` | Next / previous item |
-| `o` or `Enter` | Open item in reader |
+| `o` or `enter` | Open item in reader |
 | `s` | Toggle star |
 | `m` | Toggle read / unread |
 | `/` | Focus search |
