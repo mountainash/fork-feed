@@ -799,6 +799,18 @@ kbd, .inline-kbd {
 .server-info .srow:last-child { border-bottom: none; }
 .server-info .srow .k { opacity: 0.55; letter-spacing: 0.04em; }
 
+.settings-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  font: 11px var(--mono);
+  letter-spacing: 0.06em;
+  border: 1px solid var(--rule-strong);
+  background: var(--cream-2);
+  cursor: pointer;
+  transition: all var(--ease);
+}
+.settings-btn:hover { background: var(--navy); color: var(--cream-2); border-color: var(--navy); }
+
 /* ===== MANAGE FEEDS ===== */
 
 .manage-actions { margin: 24px 0 32px; }

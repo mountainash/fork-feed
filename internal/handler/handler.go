@@ -64,6 +64,10 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /feeds/{id}/confirm-delete", h.handleConfirmDeleteFeed)
 	mux.HandleFunc("PUT /feeds/{id}", h.handleUpdateFeed)
 	mux.HandleFunc("DELETE /feeds/{id}", h.handleDeleteFeed)
+
+	// import / export
+	mux.HandleFunc("GET /export/opml", h.handleExportOPML)
+	mux.HandleFunc("POST /import/opml", h.handleImportOPML)
 }
 
 func (h *Handler) isHTMX(r *http.Request) bool {

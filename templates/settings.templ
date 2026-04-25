@@ -86,11 +86,21 @@ templ Settings() {
 					<div><span class="inline-kbd">n</span></div><div style="opacity:0.85">add new feed</div>
 				</div>
 				<h2 style="font-family:var(--grot);font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-top:48px;margin-bottom:14px">import / export</h2>
-				<div style="display:flex;gap:10px;padding-top:16px;border-top:1px solid var(--rule-strong)">
-					<button style="padding:10px 16px;font-family:var(--mono);font-size:11px;letter-spacing:0.06em;border:1px solid var(--rule-strong);background:var(--cream-2)">import opml</button>
-					<button style="padding:10px 16px;font-family:var(--mono);font-size:11px;letter-spacing:0.06em;border:1px solid var(--rule-strong);background:var(--cream-2)">export opml</button>
-					<button style="padding:10px 16px;font-family:var(--mono);font-size:11px;letter-spacing:0.06em;border:1px solid var(--rule-strong);background:var(--cream-2)">export reading history</button>
-					<button style="padding:10px 16px;font-family:var(--mono);font-size:11px;letter-spacing:0.06em;border:1px solid var(--rule-strong);background:var(--cream-2)">clear cache</button>
+				<div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--rule-strong)">
+					<label class="settings-btn">
+						import opml
+						<input
+							type="file"
+							name="file"
+							accept=".opml,.xml"
+							style="display:none"
+							hx-post="/import/opml"
+							hx-encoding="multipart/form-data"
+							hx-trigger="change"
+							hx-swap="none"
+						/>
+					</label>
+					<a class="settings-btn" href="/export/opml" download="feeds.opml">export opml</a>
 				</div>
 			</div>
 		</section>

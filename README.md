@@ -48,6 +48,13 @@ All configuration is via environment variables.
 | `1` | Toggle sidebar |
 | `2` | Toggle item list |
 
+## import / export
+
+kontrolplane/feed supports `opml` for migrating feeds between readers.
+
+- `import`: go to settings and click "import opml" to upload a `.opml` or `.xml` file. Feeds are grouped into folders as defined in the file, existing feeds are updated, new ones are added.
+- `export`: click "export opml" in settings to download a `feeds.opml` file containing all your subscriptions grouped by folder, compatible with any reader that supports OPML 2.0.
+
 ## deployment
 
 A Helm chart is included in [`github.com/kontrolplane/helm-charts`](kontrolplane/helm-charts).
