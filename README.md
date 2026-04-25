@@ -121,7 +121,7 @@ helm install feed kontrolplane/feed \
   --set database.postgres.existingSecret=pg-credentials
 ```
 
-See the full chart documentation at [`kontrolplane/helm-charts/feed`](https://github.com/kontrolplane/helm-charts/feed) for all configuration options including ingress, resources, and autoscaling.
+See the full chart documentation at [`kontrolplane/helm-charts/feed`](https://github.com/kontrolplane/helm-charts/tree/main/feed) for all configuration options including ingress, resources, and autoscaling.
 
 ## prerequisites
 
