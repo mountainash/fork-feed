@@ -1,0 +1,24 @@
+package templates
+
+import "github.com/kontrolplane/feed/internal/store"
+
+templ FolderPicker(folders []store.Folder, selected string) {
+	<div class="folder-picker">
+		<select
+			name="folder"
+			onchange="var np=this.closest('.folder-picker').querySelector('.folder-picker-new');if(this.value==='__new__'){np.style.display='block';np.querySelector('input').focus();}else{np.style.display='none';np.querySelector('input').value='';}"
+		>
+			for _, f := range folders {
+				<option value={ f.ID } selected?={ f.ID == selected }>{ f.Label }</option>
+			}
+			<option value="__new__">+ new folder…</option>
+		</select>
+		<div class="folder-picker-new" style="display:none">
+			<input
+				type="text"
+				name="new_folder"
+				placeholder="folder name"
+			/>
+		</div>
+	</div>
+}

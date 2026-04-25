@@ -54,6 +54,11 @@ func Page(data PageData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+			} else if data.List.View.Kind == "view" && data.List.View.ID == "manage" {
+				templ_7745c5c3_Err = Manage(data.Manage).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			} else {
 				templ_7745c5c3_Err = ItemList(data.List).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {

@@ -3,33 +3,6 @@ package templates
 import "github.com/kontrolplane/feed/internal/store"
 import "fmt"
 
-script showDeleteConfirm(feedID string, feedTitle string) {
-	var modal = document.getElementById('modal');
-	modal.innerHTML =
-		'<div class="scrim" onclick="document.getElementById(\'modal\').innerHTML=\'\'">' +
-			'<div class="modal" onclick="event.stopPropagation()">' +
-				'<div class="modal-head">' +
-					'<span>[ confirm / unsubscribe ]</span>' +
-					'<span class="close" onclick="document.getElementById(\'modal\').innerHTML=\'\'">✕</span>' +
-				'</div>' +
-				'<div class="modal-body">' +
-					'<h2>unsubscribe?</h2>' +
-					'<div class="sub">remove <strong>' + feedTitle + '</strong> and all its items. this cannot be undone.</div>' +
-					'<div class="btns">' +
-						'<button class="ghost" onclick="document.getElementById(\'modal\').innerHTML=\'\'">cancel</button>' +
-						'<button class="primary" ' +
-							'hx-delete="/feeds/' + feedID + '" ' +
-							'hx-target="#main" ' +
-							'hx-swap="outerHTML" ' +
-							'onclick="setTimeout(function(){ document.getElementById(\'modal\').innerHTML=\'\'; }, 200)"' +
-						'>unsubscribe →</button>' +
-					'</div>' +
-				'</div>' +
-			'</div>' +
-		'</div>';
-	htmx.process(modal);
-}
-
 templ Sidebar(data SidebarData) {
 	<aside class="sidebar" id="sidebar">
 		@sidebarInner(data)
@@ -43,7 +16,13 @@ templ sidebarInner(data SidebarData) {
 		@sidebarView("02", "unread", "unread", data.Counts.Unread, data.View)
 		@sidebarView("03", "read", "read", data.Counts.Read, data.View)
 		@sidebarView("04", "starred", "starred", data.Counts.Starred, data.View)
-		@sidebarView("05", "today", "today", data.Counts.Today, data.View)
+	</section>
+	<section>
+		<h5><span>[ timeline ]</span></h5>
+		@sidebarView("01", "today", "today", data.Counts.Today, data.View)
+		@sidebarView("02", "yesterday", "yesterday", data.Counts.Yesterday, data.View)
+		@sidebarView("03", "last week", "last-week", data.Counts.LastWeek, data.View)
+		@sidebarView("04", "last month", "last-month", data.Counts.LastMonth, data.View)
 	</section>
 	<section>
 		<h5>
@@ -63,6 +42,17 @@ templ sidebarInner(data SidebarData) {
 	<section>
 		<h5><span>[ system ]</span></h5>
 		<a
+			class={ "nav-item", templ.KV("active", data.View.Kind == "view" && data.View.ID == "manage") }
+			hx-get="/manage"
+			hx-target="#main"
+			hx-swap="outerHTML"
+			hx-push-url="/manage"
+		>
+			<span class="g">✦</span>
+			<span>manage feeds</span>
+			<span class="c">{ fmt.Sprint(len(data.Feeds)) }</span>
+		</a>
+		<a
 			class={ "nav-item", templ.KV("active", data.View.Kind == "view" && data.View.ID == "settings") }
 			hx-get="/settings"
 			hx-target="#main"
@@ -71,7 +61,6 @@ templ sidebarInner(data SidebarData) {
 		>
 			<span class="g">✦</span>
 			<span>settings</span>
-			<span class="c">v1.0</span>
 		</a>
 	</section>
 }
@@ -124,25 +113,18 @@ func folderUnread(folderID string, feeds []store.Feed, counts store.Counts) int 
 }
 
 templ sidebarFeed(feed store.Feed, counts store.Counts, view ViewState) {
-	<div class="feed-row">
-		<a
-			class={ "feed-item", templ.KV("active", view.Kind == "feed" && view.ID == feed.ID), templ.KV("unread", counts.PerFeed[feed.ID] > 0) }
-			hx-get={ "/feeds/" + feed.ID }
-			hx-target="#main"
-			hx-swap="outerHTML"
-			hx-push-url={ "/feeds/" + feed.ID }
-		>
-			<span class="t">{ feed.Title }</span>
-			if counts.PerFeed[feed.ID] > 0 {
-				<span class="c">{ fmt.Sprint(counts.PerFeed[feed.ID]) }</span>
-			} else {
-				<span class="c">—</span>
-			}
-		</a>
-		<button
-			class="feed-del"
-			onclick={ showDeleteConfirm(feed.ID, feed.Title) }
-			title="unsubscribe"
-		>×</button>
-	</div>
+	<a
+		class={ "feed-item", templ.KV("active", view.Kind == "feed" && view.ID == feed.ID), templ.KV("unread", counts.PerFeed[feed.ID] > 0) }
+		hx-get={ "/feeds/" + feed.ID }
+		hx-target="#main"
+		hx-swap="outerHTML"
+		hx-push-url={ "/feeds/" + feed.ID }
+	>
+		<span class="t">{ feed.Title }</span>
+		if counts.PerFeed[feed.ID] > 0 {
+			<span class="c">{ fmt.Sprint(counts.PerFeed[feed.ID]) }</span>
+		} else {
+			<span class="c">-</span>
+		}
+	</a>
 }

@@ -24,8 +24,10 @@ type ListData struct {
 }
 
 type ReaderData struct {
-	Item *store.Item
-	Feed *store.Feed
+	Item   *store.Item
+	Feed   *store.Feed
+	PrevID string
+	NextID string
 }
 
 type StatusData struct {
@@ -37,9 +39,15 @@ type StatusData struct {
 	LastSync    string
 }
 
+type ManageData struct {
+	Feeds   []store.Feed
+	Folders []store.Folder
+}
+
 type PageData struct {
 	Sidebar SidebarData
 	List    ListData
 	Reader  ReaderData
 	Status  StatusData
+	Manage  ManageData
 }

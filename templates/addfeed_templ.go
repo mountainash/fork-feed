@@ -99,43 +99,15 @@ func ProbeResults(url string, folders []store.Folder) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" placeholder=\"feed name\"> <label>place in folder</label> <select name=\"folder\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" placeholder=\"feed name\"> <label>place in folder</label>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, f := range folders {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<option value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(f.ID)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 57, Col: 23}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(f.Label)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/addfeed.templ`, Line: 57, Col: 35}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</option> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
+		templ_7745c5c3_Err = FolderPicker(folders, "").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<option value=\"__new__\">+ new folder…</option></select><div class=\"btns\" style=\"margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)\"><button type=\"button\" class=\"ghost\" onclick=\"document.getElementById('modal').innerHTML=''\">cancel</button> <button class=\"primary\" hx-post=\"/feeds/subscribe\" hx-include=\"closest form\" hx-target=\"#sidebar\" hx-swap=\"outerHTML\" onclick=\"setTimeout(function(){ document.getElementById('modal').innerHTML=''; }, 200)\">subscribe →</button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"btns\" style=\"margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)\"><button type=\"button\" class=\"ghost\" onclick=\"document.getElementById('modal').innerHTML=''\">cancel</button> <button class=\"primary\" hx-post=\"/feeds/subscribe\" hx-include=\"closest form\" hx-target=\"#sidebar\" hx-swap=\"outerHTML\" onclick=\"setTimeout(function(){ document.getElementById('modal').innerHTML=''; }, 200)\">subscribe →</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

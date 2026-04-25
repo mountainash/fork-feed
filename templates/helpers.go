@@ -31,6 +31,13 @@ func Pad2(n int) string {
 	return fmt.Sprintf("%02d", n)
 }
 
+func Truncate(s string, max int) string {
+	if len(s) > max {
+		return s[:max] + "…"
+	}
+	return s
+}
+
 func TruncateURL(u string) string {
 	u = strings.TrimPrefix(u, "https://")
 	u = strings.TrimPrefix(u, "http://")

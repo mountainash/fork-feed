@@ -52,12 +52,7 @@ templ ProbeResults(url string, folders []store.Folder) {
 		placeholder="feed name"
 	/>
 	<label>place in folder</label>
-	<select name="folder">
-		for _, f := range folders {
-			<option value={ f.ID }>{ f.Label }</option>
-		}
-		<option value="__new__">+ new folder…</option>
-	</select>
+	@FolderPicker(folders, "")
 	<div class="btns" style="margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)">
 		<button type="button" class="ghost" onclick="document.getElementById('modal').innerHTML=''">cancel</button>
 		<button

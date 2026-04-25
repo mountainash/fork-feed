@@ -1,4 +1,4 @@
-// hotkeys.js — keyboard shortcuts for kontrolplane/feed
+// hotkeys.js - keyboard shortcuts for kontrolplane/feed
 
 function activateItem(el) {
   var prev = document.querySelector(".list-body .item.active");

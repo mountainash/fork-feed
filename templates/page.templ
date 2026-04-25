@@ -5,6 +5,8 @@ templ Page(data PageData) {
 		@Sidebar(data.Sidebar)
 		if data.List.View.Kind == "view" && data.List.View.ID == "settings" {
 			@Settings()
+		} else if data.List.View.Kind == "view" && data.List.View.ID == "manage" {
+			@Manage(data.Manage)
 		} else {
 			@ItemList(data.List)
 			@Reader(data.Reader)

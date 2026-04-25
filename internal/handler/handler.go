@@ -51,6 +51,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /partials/status", h.handleStatusPartial)
 	mux.HandleFunc("GET /search", h.handleSearch)
 	mux.HandleFunc("GET /settings", h.handleSettings)
+	mux.HandleFunc("GET /manage", h.handleManage)
 
 	// item actions
 	mux.HandleFunc("POST /items/{id}/star", h.handleStar)
@@ -59,6 +60,9 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	// feed management
 	mux.HandleFunc("POST /feeds/probe", h.handleProbe)
 	mux.HandleFunc("POST /feeds/subscribe", h.handleSubscribe)
+	mux.HandleFunc("GET /feeds/{id}/edit", h.handleEditFeed)
+	mux.HandleFunc("GET /feeds/{id}/confirm-delete", h.handleConfirmDeleteFeed)
+	mux.HandleFunc("PUT /feeds/{id}", h.handleUpdateFeed)
 	mux.HandleFunc("DELETE /feeds/{id}", h.handleDeleteFeed)
 }
 
@@ -97,10 +101,9 @@ func (h *Handler) handleItemPage(w http.ResponseWriter, r *http.Request) {
 	h.store.MarkRead(ctx, id, true)
 	item.Read = true
 
-	feed, _ := h.store.FeedByID(ctx, item.FeedID)
+	rd := h.readerData(ctx, item)
 
 	if h.isHTMX(r) {
-		rd := templates.ReaderData{Item: item, Feed: feed}
 		h.renderComponent(w, r, templates.Reader(rd))
 		h.renderOOBSidebar(w, r)
 		h.renderOOBStatus(w, r)
@@ -192,6 +195,21 @@ func (h *Handler) handleSettings(w http.ResponseWriter, r *http.Request) {
 	h.renderFullPage(w, r, nil)
 }
 
+func (h *Handler) handleManage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	h.viewState = templates.ViewState{Kind: "view", ID: "manage"}
+
+	md := h.manageData(ctx)
+
+	if h.isHTMX(r) {
+		h.renderComponent(w, r, templates.Manage(md))
+		h.renderOOBSidebar(w, r)
+		h.renderOOBStatus(w, r)
+		return
+	}
+	h.renderFullPage(w, r, nil)
+}
+
 // ---------- item actions ----------
 
 func (h *Handler) handleStar(w http.ResponseWriter, r *http.Request) {
@@ -205,11 +223,9 @@ func (h *Handler) handleStar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	feed, _ := h.store.FeedByID(ctx, item.FeedID)
-
 	target := r.Header.Get("HX-Target")
 	if target == "reader" {
-		rd := templates.ReaderData{Item: item, Feed: feed}
+		rd := h.readerData(ctx, item)
 		h.renderComponent(w, r, templates.Reader(rd))
 	} else {
 		feeds, _ := h.store.Feeds(ctx)
@@ -232,9 +248,8 @@ func (h *Handler) handleToggleRead(w http.ResponseWriter, r *http.Request) {
 	h.store.ToggleRead(ctx, id)
 
 	item, _ := h.store.ItemByID(ctx, id)
-	feed, _ := h.store.FeedByID(ctx, item.FeedID)
 
-	rd := templates.ReaderData{Item: item, Feed: feed}
+	rd := h.readerData(ctx, item)
 	h.renderComponent(w, r, templates.Reader(rd))
 	h.renderOOBSidebar(w, r)
 	h.renderOOBStatus(w, r)
@@ -254,11 +269,25 @@ func (h *Handler) handleProbe(w http.ResponseWriter, r *http.Request) {
 	h.renderComponent(w, r, templates.ProbeResults(url, folders))
 }
 
+func (h *Handler) resolveFolder(ctx context.Context, r *http.Request) string {
+	folder := r.FormValue("folder")
+	if folder == "__new__" {
+		name := strings.TrimSpace(r.FormValue("new_folder"))
+		if name != "" {
+			id := strings.ToLower(strings.ReplaceAll(name, " ", "-"))
+			count, _ := h.store.FolderCount(ctx)
+			h.store.UpsertFolder(ctx, store.Folder{ID: id, Label: name}, count)
+			return id
+		}
+	}
+	return folder
+}
+
 func (h *Handler) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	r.ParseForm()
 	feedURL := r.FormValue("feed_url")
-	folder := r.FormValue("folder")
+	folder := h.resolveFolder(ctx, r)
 
 	if feedURL != "" && folder != "" {
 		title := r.FormValue("title")
@@ -281,6 +310,63 @@ func (h *Handler) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 	h.renderComponent(w, r, templates.Sidebar(sd))
 }
 
+func (h *Handler) handleEditFeed(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := r.PathValue("id")
+
+	feed, err := h.store.FeedByID(ctx, id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	folders, _ := h.store.Folders(ctx)
+	h.renderComponent(w, r, templates.ManageFeedEdit(*feed, folders))
+}
+
+func (h *Handler) handleConfirmDeleteFeed(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := r.PathValue("id")
+
+	feed, err := h.store.FeedByID(ctx, id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	h.renderComponent(w, r, templates.ManageFeedConfirmDelete(*feed))
+}
+
+func (h *Handler) handleUpdateFeed(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := r.PathValue("id")
+	r.ParseForm()
+
+	feed, err := h.store.FeedByID(ctx, id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	if title := r.FormValue("title"); title != "" {
+		feed.Title = title
+	}
+	if url := r.FormValue("url"); url != "" {
+		feed.URL = url
+	}
+	if folder := h.resolveFolder(ctx, r); folder != "" {
+		feed.Folder = folder
+	}
+
+	h.store.UpsertFeed(ctx, *feed)
+
+	h.viewState = templates.ViewState{Kind: "view", ID: "manage"}
+	md := h.manageData(ctx)
+	h.renderComponent(w, r, templates.Manage(md))
+	h.renderOOBSidebar(w, r)
+	h.renderOOBStatus(w, r)
+}
+
 func (h *Handler) handleDeleteFeed(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := r.PathValue("id")
@@ -291,15 +377,12 @@ func (h *Handler) handleDeleteFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// reset view to unread if we were viewing the deleted feed
-	if h.viewState.Kind == "feed" && h.viewState.ID == id {
-		h.viewState = templates.ViewState{Kind: "view", ID: "unread"}
-	}
+	h.viewState = templates.ViewState{Kind: "view", ID: "manage"}
 
-	h.renderList(w, r)
+	md := h.manageData(ctx)
+	h.renderComponent(w, r, templates.Manage(md))
 	h.renderOOBSidebar(w, r)
 	h.renderOOBStatus(w, r)
-	h.renderOOBReaderReset(w, r)
 }
 
 // ---------- helpers ----------
@@ -322,6 +405,37 @@ func (h *Handler) renderOOBReaderReset(w http.ResponseWriter, r *http.Request) {
 	templates.OOBReaderReset().Render(r.Context(), w)
 }
 
+func (h *Handler) readerData(ctx context.Context, item *store.Item) templates.ReaderData {
+	var feed *store.Feed
+	if item != nil {
+		feed, _ = h.store.FeedByID(ctx, item.FeedID)
+	}
+
+	rd := templates.ReaderData{Item: item, Feed: feed}
+
+	if item != nil {
+		items, _ := h.store.ListItems(ctx, store.ListFilter{
+			ViewKind: h.viewState.Kind,
+			ViewID:   h.viewState.ID,
+			Query:    h.query,
+			Sort:     h.sort,
+		})
+		for i, it := range items {
+			if it.ID == item.ID {
+				if i > 0 {
+					rd.PrevID = items[i-1].ID
+				}
+				if i < len(items)-1 {
+					rd.NextID = items[i+1].ID
+				}
+				break
+			}
+		}
+	}
+
+	return rd
+}
+
 func (h *Handler) renderList(w http.ResponseWriter, r *http.Request) {
 	ld := h.listData(r.Context())
 	h.renderComponent(w, r, templates.ItemList(ld))
@@ -329,16 +443,13 @@ func (h *Handler) renderList(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) renderFullPage(w http.ResponseWriter, r *http.Request, activeItem *store.Item) {
 	ctx := r.Context()
-	var feed *store.Feed
-	if activeItem != nil {
-		feed, _ = h.store.FeedByID(ctx, activeItem.FeedID)
-	}
 
 	pd := templates.PageData{
 		Sidebar: h.sidebarData(ctx),
 		List:    h.listData(ctx),
-		Reader:  templates.ReaderData{Item: activeItem, Feed: feed},
+		Reader:  h.readerData(ctx, activeItem),
 		Status:  h.statusData(ctx),
+		Manage:  h.manageData(ctx),
 	}
 
 	templates.Page(pd).Render(ctx, w)
@@ -353,6 +464,15 @@ func (h *Handler) sidebarData(ctx context.Context) templates.SidebarData {
 		Feeds:   feeds,
 		Counts:  counts,
 		View:    h.viewState,
+	}
+}
+
+func (h *Handler) manageData(ctx context.Context) templates.ManageData {
+	feeds, _ := h.store.Feeds(ctx)
+	folders, _ := h.store.Folders(ctx)
+	return templates.ManageData{
+		Feeds:   feeds,
+		Folders: folders,
 	}
 }
 
@@ -429,8 +549,16 @@ func (h *Handler) viewTitle(ctx context.Context) string {
 			return "starred"
 		case "today":
 			return "today"
+		case "yesterday":
+			return "yesterday"
+		case "last-week":
+			return "last week"
+		case "last-month":
+			return "last month"
 		case "settings":
 			return "settings"
+		case "manage":
+			return "manage feeds"
 		}
 	}
 	return "index"

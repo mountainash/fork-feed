@@ -39,12 +39,15 @@ type Item struct {
 }
 
 type Counts struct {
-	All     int
-	Unread  int
-	Read    int
-	Starred int
-	Today   int
-	PerFeed map[string]int
+	All       int
+	Unread    int
+	Read      int
+	Starred   int
+	Today     int
+	Yesterday int
+	LastWeek  int
+	LastMonth int
+	PerFeed   map[string]int
 }
 
 type ListFilter struct {
@@ -195,9 +198,22 @@ func (s *Store) ListItems(ctx context.Context, f ListFilter) ([]Item, error) {
 		case "starred":
 			where = append(where, "i.starred = 1")
 		case "today":
+			today := time.Now().Format("2006-01-02")
+			where = append(where, "i.date = ?")
+			args = append(args, today)
+		case "yesterday":
 			yesterday := time.Now().Add(-24 * time.Hour).Format("2006-01-02")
+			today := time.Now().Format("2006-01-02")
+			where = append(where, "i.date >= ? AND i.date < ?")
+			args = append(args, yesterday, today)
+		case "last-week":
+			weekAgo := time.Now().Add(-7 * 24 * time.Hour).Format("2006-01-02")
 			where = append(where, "i.date >= ?")
-			args = append(args, yesterday)
+			args = append(args, weekAgo)
+		case "last-month":
+			monthAgo := time.Now().Add(-30 * 24 * time.Hour).Format("2006-01-02")
+			where = append(where, "i.date >= ?")
+			args = append(args, monthAgo)
 		}
 	}
 
@@ -273,8 +289,21 @@ func (s *Store) Counts(ctx context.Context) (Counts, error) {
 		return c, err
 	}
 
+	today := time.Now().Format("2006-01-02")
 	yesterday := time.Now().Add(-24 * time.Hour).Format("2006-01-02")
-	if err := s.db.QueryRow(ctx, s.ph("SELECT COUNT(*) FROM items WHERE date >= ?"), yesterday).Scan(&c.Today); err != nil {
+	weekAgo := time.Now().Add(-7 * 24 * time.Hour).Format("2006-01-02")
+	monthAgo := time.Now().Add(-30 * 24 * time.Hour).Format("2006-01-02")
+
+	if err := s.db.QueryRow(ctx, s.ph("SELECT COUNT(*) FROM items WHERE date = ?"), today).Scan(&c.Today); err != nil {
+		return c, err
+	}
+	if err := s.db.QueryRow(ctx, s.ph("SELECT COUNT(*) FROM items WHERE date >= ? AND date < ?"), yesterday, today).Scan(&c.Yesterday); err != nil {
+		return c, err
+	}
+	if err := s.db.QueryRow(ctx, s.ph("SELECT COUNT(*) FROM items WHERE date >= ?"), weekAgo).Scan(&c.LastWeek); err != nil {
+		return c, err
+	}
+	if err := s.db.QueryRow(ctx, s.ph("SELECT COUNT(*) FROM items WHERE date >= ?"), monthAgo).Scan(&c.LastMonth); err != nil {
 		return c, err
 	}
 
@@ -315,5 +344,11 @@ func (s *Store) DeleteFeed(ctx context.Context, id string) error {
 func (s *Store) FeedCount(ctx context.Context) (int, error) {
 	var n int
 	err := s.db.QueryRow(ctx, "SELECT COUNT(*) FROM feeds").Scan(&n)
+	return n, err
+}
+
+func (s *Store) FolderCount(ctx context.Context) (int, error) {
+	var n int
+	err := s.db.QueryRow(ctx, "SELECT COUNT(*) FROM folders").Scan(&n)
 	return n, err
 }
