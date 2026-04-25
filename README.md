@@ -54,13 +54,78 @@ All configuration is via environment variables.
 | `DEVELOPMENT_DEBUG` | Enable debug logging | `false` |
 | `DEVELOPMENT_SEED` | Seed default feeds on startup | `false` |
 
-## deployment
+## hosting
 
-A Helm chart is included in [`github.com/kontrolplane/helm-charts`](kontrolplane/helm-charts).
+### docker compose
+
+Two compose files are included for quick self-hosting.
+
+`option: sqlite`:
+
+```bash
+docker compose up -d
+```
+
+This starts the app on port `8080` with a persistent volume for the database. All configuration can be adjusted by editing the `environment` block in `docker-compose.yaml`.
+
+`option: postgresql`:
+
+```bash
+docker compose -f docker-compose.postgres.yaml up -d
+```
+
+This starts the app alongside a PostgreSQL 16 instance. The app waits for Postgres to pass its healthcheck before starting. Postgres is also exposed on `localhost:5432` for direct access. To start fresh with a clean database:
+
+```bash
+docker compose -f docker-compose.postgres.yaml down -v
+docker compose -f docker-compose.postgres.yaml up -d --build
+```
+
+### helm chart
+
+A Helm chart is available at [`kontrolplane/helm-charts`](https://github.com/kontrolplane/helm-charts).
+
+`option: sqlite`:
+
+```bash
+helm repo add kontrolplane https://kontrolplane.github.io/helm-charts
+helm install feed kontrolplane/feed
+```
+
+`option: postgresql through cnpg`
+
+```bash
+helm install feed kontrolplane/feed \
+  --set database.driver=postgres \
+  --set cnpg.enabled=true
+```
+
+This creates a Cloud Native PostgreSQL (CNPG) `Cluster` resource alongside the app. The CNPG operator must be installed on the cluster beforehand. Credentials are wired automatically from the operator-generated secret.
+
+`option: postgresql external`
+
+```bash
+helm install feed kontrolplane/feed \
+  --set database.driver=postgres \
+  --set database.postgres.host=pg.example.com \
+  --set database.postgres.user=feed \
+  --set database.postgres.password=secret \
+  --set database.postgres.database=feed
+```
+
+Or reference an existing Kubernetes secret:
+
+```bash
+helm install feed kontrolplane/feed \
+  --set database.driver=postgres \
+  --set database.postgres.existingSecret=pg-credentials
+```
+
+See the full chart documentation at [`kontrolplane/helm-charts/feed`](https://github.com/kontrolplane/helm-charts/feed) for all configuration options including ingress, resources, and autoscaling.
 
 ## prerequisites
 
-- Go 1.22+
+- go 1.25+
 - [templ](https://templ.guide/) (`go install github.com/a-h/templ/cmd/templ@latest`)
 
 ## development
