@@ -81,19 +81,11 @@ func main() {
 		logger.Info("imported feeds from file", slog.String("path", cfg.FeedsFile), slog.Int("feeds", n))
 	}
 
-	// Seed database if configured or if empty
+	// Seed database with default feeds when explicitly enabled
 	if cfg.Seed {
 		if err := store.Seed(ctx, s); err != nil {
 			logger.Error("failed to seed database", slog.Any("error", err))
 			os.Exit(1)
-		}
-	} else if cfg.FeedsFile == "" {
-		count, _ := s.FeedCount(ctx)
-		if count == 0 {
-			if err := store.Seed(ctx, s); err != nil {
-				logger.Error("failed to seed database", slog.Any("error", err))
-				os.Exit(1)
-			}
 		}
 	}
 
