@@ -25,6 +25,9 @@ type FeedServiceConfiguration struct {
 	Retention  string `env:"RETENTION" envDefault:"30d"`         // "7d", "30d", "90d", "forever"
 	Density    string `env:"DENSITY" envDefault:"default"`       // "tight", "default", "loose"
 
+	// Path to an OPML file to import feeds from on startup
+	FeedsFile string `env:"FEEDS_FILE" envDefault:""`
+
 	Debug bool `env:"DEVELOPMENT_DEBUG" envDefault:"false"`
 	Seed  bool `env:"DEVELOPMENT_SEED" envDefault:"false"`
 }

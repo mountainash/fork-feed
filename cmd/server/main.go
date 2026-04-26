@@ -71,13 +71,23 @@ func main() {
 	// Create store
 	s := store.New(pool, cfg.DatabaseDriver)
 
+	// Import feeds from file if configured
+	if cfg.FeedsFile != "" {
+		n, err := store.ImportOPMLFile(ctx, s, cfg.FeedsFile)
+		if err != nil {
+			logger.Error("failed to import feeds file", slog.String("path", cfg.FeedsFile), slog.Any("error", err))
+			os.Exit(1)
+		}
+		logger.Info("imported feeds from file", slog.String("path", cfg.FeedsFile), slog.Int("feeds", n))
+	}
+
 	// Seed database if configured or if empty
 	if cfg.Seed {
 		if err := store.Seed(ctx, s); err != nil {
 			logger.Error("failed to seed database", slog.Any("error", err))
 			os.Exit(1)
 		}
-	} else {
+	} else if cfg.FeedsFile == "" {
 		count, _ := s.FeedCount(ctx)
 		if count == 0 {
 			if err := store.Seed(ctx, s); err != nil {
