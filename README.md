@@ -98,6 +98,14 @@ To keep your fork's deployment up to date automatically, add a `FLY_API_TOKEN` s
 
 Any of the [configuration](#configuration) environment variables can be set as Fly secrets, e.g. `fly secrets set RETENTION=90d`. If you'd rather run against PostgreSQL (for example with [Fly's managed Postgres](https://fly.io/docs/postgres/)), set `DATABASE_DRIVER=postgres` along with the corresponding `DATABASE_*` secrets and remove the `[mounts]` block from `fly.toml`, since the SQLite volume is no longer needed.
 
+### restricting access
+
+The included `fly.toml` exposes the app publicly. For an app that must not be reachable from the public internet, Fly offers [Flycast](https://fly.io/docs/networking/flycast/): a private Fly Proxy address available only to other apps in the organization or devices connected through [Fly WireGuard](https://fly.io/docs/networking/private-networking/).
+
+Follow Fly's [private-app guide](https://fly.io/docs/blueprints/private-applications-flycast/) to allocate a private IPv6 address and release every public IP assigned to the app. Confirm with `fly ips list` that only the private address remains. Connect the devices that need browser access through WireGuard, then access the app through its `.flycast` address. When using Flycast-only access, disable `force_https` in `fly.toml`; public TLS certificates do not cover `.flycast` addresses.
+
+If the app needs a public endpoint, put it behind an access-control layer instead: a reverse proxy or identity-aware proxy with authentication (for example Cloudflare Access, Tailscale Serve, or an OAuth/OIDC-enabled proxy). Network controls limit who can connect, but do not replace application authentication when multiple people can access the private network.
+
 ## prerequisites
 
 - go 1.25+
