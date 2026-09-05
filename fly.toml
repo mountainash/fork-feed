@@ -2,8 +2,8 @@
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 
-app = "kontrolplane-feed"
-primary_region = "iad"
+app = "feed"
+primary_region = "fra"
 
 [build]
 
@@ -13,7 +13,7 @@ primary_region = "iad"
   DATABASE_PATH = "/data/feed.db"
 
 [mounts]
-  source = "kontrolplane_feed_data"
+  source = "feed_store"
   destination = "/data"
 
 [http_service]

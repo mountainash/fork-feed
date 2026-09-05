@@ -90,7 +90,7 @@ A `fly.toml` is included for deploying `kontrolplane/feed` as a single app on [f
 3. Create the app (this reads `fly.toml`, but doesn't deploy yet): `fly launch --no-deploy`
    - Choose a unique app name, or edit `app` in `fly.toml` to match one you already created
    - Pick a region close to you, or update `primary_region` in `fly.toml`
-4. Create the data volume in the same region as the app: `fly volumes create kontrolplane_feed_data --size 1 --region <primary_region>`
+4. Create the data volume in the same region as the app: `fly volumes create feed_store --size 1 --region <primary_region>`
 5. Deploy: `fly deploy`
 6. Open the app: `fly open`
 
