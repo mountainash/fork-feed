@@ -8,7 +8,7 @@
 
 `kontrolplane/feed` is a self-hosted RSS reader built with Go, HTMX, and templ. A single binary serves a server-rendered three-pane UI over plain HTTP. A background worker fetches your feeds on a configurable interval, extracts full article content via readability, and stores everything in SQLite or PostgreSQL. The browser talks directly to Go route handlers that return HTML fragments - there is no client-side state. htmx swaps panes without full page reloads. Your reading data stays in a local database file or your own postgresql instance, nowhere else.
 
-Supports full-text search, keyboard-first navigation, timeline filtering (today, yesterday, last week, last month), feed management with inline editing, OPML import/export, dark mode, and deploys to Kubernetes via the included Helm chart with optional CloudNativePG integration.
+Supports full-text search, keyboard-first navigation, timeline filtering (today, yesterday, last week, last month), feed management with inline editing, OPML import/export, dark mode, and deploys to fly.io optional CloudNativePG integration.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/cd1c129a-bf15-402e-864b-1712022a9f31">
@@ -80,48 +80,6 @@ This starts the app alongside a PostgreSQL 16 instance. The app waits for Postgr
 docker compose -f docker-compose.postgres.yaml down -v
 docker compose -f docker-compose.postgres.yaml up -d --build
 ```
-
-### helm chart
-
-A Helm chart is available at [`kontrolplane/helm-charts`](https://github.com/kontrolplane/helm-charts).
-
-`option: sqlite`:
-
-```bash
-helm repo add kontrolplane https://kontrolplane.github.io/helm-charts
-helm install feed kontrolplane/feed
-```
-
-`option: postgresql through cnpg`
-
-```bash
-helm install feed kontrolplane/feed \
-  --set database.driver=postgres \
-  --set cnpg.enabled=true
-```
-
-This creates a Cloud Native PostgreSQL (CNPG) `Cluster` resource alongside the app. The CNPG operator must be installed on the cluster beforehand. Credentials are wired automatically from the operator-generated secret.
-
-`option: postgresql external`
-
-```bash
-helm install feed kontrolplane/feed \
-  --set database.driver=postgres \
-  --set database.postgres.host=pg.example.com \
-  --set database.postgres.user=feed \
-  --set database.postgres.password=secret \
-  --set database.postgres.database=feed
-```
-
-Or reference an existing Kubernetes secret:
-
-```bash
-helm install feed kontrolplane/feed \
-  --set database.driver=postgres \
-  --set database.postgres.existingSecret=pg-credentials
-```
-
-See the full chart documentation at [`kontrolplane/helm-charts/feed`](https://github.com/kontrolplane/helm-charts/tree/main/feed) for all configuration options including ingress, resources, and autoscaling.
 
 ## prerequisites
 
