@@ -45,14 +45,20 @@ func main() {
 		logger = slog.New(logHandler)
 	}
 
+	listenAddress := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	displayHost := cfg.Host
+	if displayHost == "" {
+		displayHost = "localhost"
+	}
+
 	fmt.Fprintf(os.Stderr, `
   ▐▐▐  kontrolplane/feed
 
-  listening:   http://localhost:%d
+  listening:   http://%s
   driver:      %s
   refresh:     %s
 
-`, cfg.Port, cfg.DatabaseDriver, cfg.RefreshInterval)
+`, fmt.Sprintf("%s:%d", displayHost, cfg.Port), cfg.DatabaseDriver, cfg.RefreshInterval)
 
 	// Create database pool
 	pool, err := database.CreatePool(ctx, cfg, logger)
@@ -108,7 +114,7 @@ func main() {
 
 	// Create http server
 	httpServer := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.Port),
+		Addr:         listenAddress,
 		Handler:      handler.LogRequests(logger)(mux),
 		IdleTimeout:  60 * time.Second,
 		ReadTimeout:  10 * time.Second,
