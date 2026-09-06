@@ -25,12 +25,14 @@ primary_region = "fra"
   processes = ["app"]
 
   [[http_service.checks]]
-    grace_period = "10s"
     interval = "30s"
-    method = "GET"
+    grace_period = "10s"
     timeout = "5s"
+    method = "GET"
     path = "/"
 
 [[vm]]
   size = "shared-cpu-1x"
   memory = "256mb"
+  memory_mb = 256
+  cpus = 1
