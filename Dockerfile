@@ -16,7 +16,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /bin/kontrol
 FROM alpine:3.21
 
 RUN apk add --no-cache ca-certificates
-COPY --from=cloudflare/cloudflared:2025.8.1 /usr/local/bin/cloudflared /usr/local/bin/cloudflared
+COPY --from=cloudflare/cloudflared:2026.8.3 /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 COPY --from=build /bin/kontrolplane-feed /usr/local/bin/
 COPY --from=build /src/static /app/static
 COPY --from=build /src/templates /app/templates
