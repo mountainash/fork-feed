@@ -81,6 +81,23 @@ docker compose -f docker-compose.postgres.yaml down -v
 docker compose -f docker-compose.postgres.yaml up -d --build
 ```
 
+### fly.io
+
+A `fly.toml` is included for deploying `kontrolplane/feed` as a single app on [fly.io](https://fly.io). It uses `auto_stop_machines`/`auto_start_machines` with `min_machines_running = 0` so the machine scales to zero when idle and starts back up on the next request, and it mounts a Fly volume at `/data` so the SQLite database survives restarts and deploys.
+
+1. Install [`flyctl`](https://fly.io/docs/flyctl/install/) and sign in: `fly auth login`
+2. Fork this repository, then clone your fork
+3. Create the app (this reads `fly.toml`, but doesn't deploy yet): `fly launch --no-deploy`
+   - Choose a unique app name, or edit `app` in `fly.toml` to match one you already created
+   - Pick a region close to you, or update `primary_region` in `fly.toml`
+4. Create the data volume in the same region as the app: `fly volumes create feed_store --size 1 --region <primary_region>`
+5. Deploy: `fly deploy`
+6. Open the app: `fly open`
+
+To keep your fork's deployment up to date automatically, add a `FLY_API_TOKEN` secret to your fork's repository settings (`Settings > Secrets and variables > Actions`). Generate a deploy token with `fly tokens create deploy`. The `.github/workflows/fly-deploy.yaml` workflow redeploys the app whenever you push to `main`, including after syncing your fork with upstream changes.
+
+Any of the [configuration](#configuration) environment variables can be set as Fly secrets, e.g. `fly secrets set RETENTION=90d`. If you'd rather run against PostgreSQL (for example with [Fly's managed Postgres](https://fly.io/docs/postgres/)), set `DATABASE_DRIVER=postgres` along with the corresponding `DATABASE_*` secrets and remove the `[mounts]` block from `fly.toml`, since the SQLite volume is no longer needed.
+
 ## prerequisites
 
 - go 1.25+

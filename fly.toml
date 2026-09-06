@@ -1,0 +1,36 @@
+# fly.toml app configuration file for kontrolplane/feed
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = "feed"
+primary_region = "fra"
+
+[build]
+
+[env]
+  PORT = "8080"
+  DATABASE_DRIVER = "sqlite"
+  DATABASE_PATH = "/data/feed.db"
+
+[mounts]
+  source = "feed_store"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = false
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
