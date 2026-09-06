@@ -38,6 +38,7 @@ All configuration is via environment variables.
 
 | Variable | Description | Default |
 |---|---|---|
+| `HOST` | HTTP listen address (use `127.0.0.1` behind a local proxy) | all interfaces |
 | `PORT` | HTTP listen port | `8080` |
 | `MARK_READ_ON` | When items become read: `scroll`, `open`, `manual` | `open` |
 | `RETENTION` | Keep read items for: `7d`, `30d`, `90d`, `forever` | `30d` |
@@ -97,6 +98,16 @@ A `fly.toml` is included for deploying `kontrolplane/feed` as a single app on [f
 To keep your fork's deployment up to date automatically, add a `FLY_API_TOKEN` secret to your fork's repository settings (`Settings > Secrets and variables > Actions`). Generate a deploy token with `fly tokens create deploy`. The `.github/workflows/fly-deploy.yaml` workflow redeploys the app whenever you push to `main`, including after syncing your fork with upstream changes.
 
 Any of the [configuration](#configuration) environment variables can be set as Fly secrets, e.g. `fly secrets set RETENTION=90d`. If you'd rather run against PostgreSQL (for example with [Fly's managed Postgres](https://fly.io/docs/postgres/)), set `DATABASE_DRIVER=postgres` along with the corresponding `DATABASE_*` secrets and remove the `[mounts]` block from `fly.toml`, since the SQLite volume is no longer needed.
+
+### Cloudflare Tunnel access
+
+The included Fly deployment runs [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) alongside the app. It has no Fly HTTP service and binds the app to `127.0.0.1`, so the Cloudflare Tunnel is the only ingress.
+
+1. In the Cloudflare dashboard, create a remotely managed tunnel and add a public hostname whose service is `http://localhost:8080`.
+2. Store the tunnel token as a Fly secret: `fly secrets set TUNNEL_TOKEN='<token>'`. Do not put this token in `fly.toml` or source control.
+3. Configure a [Cloudflare Access application and policy](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/) for that hostname, then deploy with `fly deploy`.
+
+`REQUIRE_TUNNEL=true` makes the container exit if the token is missing. Before deploying, confirm `fly ips list` has no public addresses; the tunnel makes outbound connections to Cloudflare and does not require a Fly public IP. The machine stays running while the tunnel is connected, so the previous scale-to-zero configuration no longer applies.
 
 ## prerequisites
 

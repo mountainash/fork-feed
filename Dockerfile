@@ -16,11 +16,13 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /bin/kontrol
 FROM alpine:3.21
 
 RUN apk add --no-cache ca-certificates
+COPY --from=cloudflare/cloudflared:2026.8.3 /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 COPY --from=build /bin/kontrolplane-feed /usr/local/bin/
 COPY --from=build /src/static /app/static
 COPY --from=build /src/templates /app/templates
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 WORKDIR /app
-EXPOSE 8080
 
-ENTRYPOINT ["kontrolplane-feed"]
+ENTRYPOINT ["docker-entrypoint.sh"]
