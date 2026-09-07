@@ -75,7 +75,7 @@ func readerContent(data ReaderData) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<section class=\"reader\" id=\"reader\"><div class=\"reader-inner\"><button type=\"button\" class=\"reader-back\">← back to list</button><div class=\"actions\"><div class=\"lh\"><span>[ reader ]</span> <span style=\"opacity:0.4\">/</span> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<section class=\"reader\" id=\"reader\"><div class=\"reader-inner\"><button type=\"button\" class=\"reader-back\" aria-label=\"back to item list\">← back to list</button><div class=\"actions\"><div class=\"lh\"><span>[ reader ]</span> <span style=\"opacity:0.4\">/</span> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -522,7 +522,7 @@ func readerEmpty() templ.Component {
 			templ_7745c5c3_Var25 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<button type=\"button\" class=\"reader-back\">← back to list</button><div class=\"empty\"><div class=\"stagger\"><i></i><i></i><i></i></div><div class=\"big\">pick an item.</div><div style=\"font-size:11px;letter-spacing:0.08em;opacity:0.7;margin-top:10px\"><span class=\"inline-kbd\">j</span> / <span class=\"inline-kbd\">k</span> navigate · <span class=\"inline-kbd\">o</span> open · <span class=\"inline-kbd\">s</span> star</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<button type=\"button\" class=\"reader-back\" aria-label=\"back to item list\">← back to list</button><div class=\"empty\"><div class=\"stagger\"><i></i><i></i><i></i></div><div class=\"big\">pick an item.</div><div style=\"font-size:11px;letter-spacing:0.08em;opacity:0.7;margin-top:10px\"><span class=\"inline-kbd\">j</span> / <span class=\"inline-kbd\">k</span> navigate · <span class=\"inline-kbd\">o</span> open · <span class=\"inline-kbd\">s</span> star</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

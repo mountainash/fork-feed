@@ -15,7 +15,7 @@ templ Reader(data ReaderData) {
 templ readerContent(data ReaderData) {
 	<section class="reader" id="reader">
 		<div class="reader-inner">
-			<button type="button" class="reader-back">← back to list</button>
+			<button type="button" class="reader-back" aria-label="back to item list">← back to list</button>
 			<div class="actions">
 				<div class="lh">
 					<span>[ reader ]</span>
@@ -119,7 +119,7 @@ templ readerNav(prevID string, nextID string) {
 }
 
 templ readerEmpty() {
-	<button type="button" class="reader-back">← back to list</button>
+	<button type="button" class="reader-back" aria-label="back to item list">← back to list</button>
 	<div class="empty">
 		<div class="stagger"><i></i><i></i><i></i></div>
 		<div class="big">pick an item.</div>
