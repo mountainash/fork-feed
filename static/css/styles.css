@@ -927,6 +927,8 @@ kbd, .inline-kbd {
     grid-template-columns: 44px 1fr 0px;
     transition: grid-template-columns 0.2s ease;
   }
+  /* override the desktop sidebar/list collapse states (defined earlier, same
+     specificity) so the hotkeys-driven toggles don't shrink the mobile rail */
   .app.sidebar-collapsed,
   .app.list-collapsed,
   .app.sidebar-collapsed.list-collapsed { grid-template-columns: 44px 1fr 0px; }
