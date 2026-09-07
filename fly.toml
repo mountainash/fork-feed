@@ -19,7 +19,8 @@ primary_region = "fra"
   destination = "/data"
 
 [[vm]]
-  size = "shared-cpu-1x"
   memory = "256mb"
   memory_mb = 256
+  cpu_kind = "shared"  
   cpus = 1
+
