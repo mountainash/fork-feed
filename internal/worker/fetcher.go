@@ -23,7 +23,9 @@ import (
 const fetchTimeout = 30 * time.Second
 
 // httpClient is used for all feed requests. It sets an overall timeout so a
-// non-responsive or slow-drip server cannot hang a fetch indefinitely.
+// non-responsive or slow-drip server cannot hang a fetch indefinitely. It is
+// shared across all fetch cycles/feeds; http.Client is safe for concurrent
+// use, so this is intentional rather than an oversight.
 var httpClient = &http.Client{
 	Timeout: fetchTimeout,
 }
@@ -135,6 +137,11 @@ func (f *Fetcher) fetchFeedSafely(ctx context.Context, parser feedParser, feed s
 
 	fetchCtx, cancel := context.WithTimeout(ctx, fetchTimeout)
 	defer cancel()
+	// Both httpClient.Timeout and fetchCtx use fetchTimeout intentionally:
+	// the client timeout bounds the HTTP request/response itself, while
+	// fetchCtx additionally bounds any work done after the response is
+	// received (e.g. feed parsing), so the whole fetchFeed call is capped
+	// at fetchTimeout regardless of where the time is spent.
 
 	start := time.Now()
 	f.logger.Debug("fetching feed", slog.String("feed", feed.Title), slog.String("url", feed.URL))
