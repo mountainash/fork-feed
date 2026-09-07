@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -13,6 +14,21 @@ import (
 	"github.com/kontrolplane/feed/internal/store"
 	"github.com/mmcdole/gofeed"
 )
+
+// fetchTimeout bounds how long a single feed's HTTP request and parsing may
+// take before it is abandoned, so that one slow or hanging feed cannot stall
+// the whole fetch cycle. Article extraction via extractArticle uses its own
+// independent 15s timeout (readability.FromURL does not accept a context),
+// so it is bounded separately and is not tied to fetchTimeout/fetchCtx.
+const fetchTimeout = 30 * time.Second
+
+// httpClient is used for all feed requests. It sets an overall timeout so a
+// non-responsive or slow-drip server cannot hang a fetch indefinitely. It is
+// shared across all fetch cycles/feeds; http.Client is safe for concurrent
+// use, so this is intentional rather than an oversight.
+var httpClient = &http.Client{
+	Timeout: fetchTimeout,
+}
 
 type Fetcher struct {
 	store    *store.Store
@@ -49,20 +65,25 @@ func (f *Fetcher) Start(ctx context.Context) {
 }
 
 func (f *Fetcher) fetchAll(ctx context.Context) {
+	start := time.Now()
+	f.logger.Info("starting feed fetch cycle")
+
 	feeds, err := f.store.Feeds(ctx)
 	if err != nil {
 		f.logger.Error("error listing feeds", slog.Any("error", err))
 		return
 	}
+	f.logger.Info("fetching feeds", slog.Int("count", len(feeds)))
 
 	parser := gofeed.NewParser()
 	var fetched, errors int
 
 	for _, feed := range feeds {
-		items, err := f.fetchFeed(ctx, parser, feed)
+		items, err := f.fetchFeedSafely(ctx, parser, feed)
 		if err != nil {
 			f.logger.Error("error fetching feed",
 				slog.String("feed", feed.Title),
+				slog.String("url", feed.URL),
 				slog.Any("error", err),
 			)
 			errors++
@@ -72,24 +93,78 @@ func (f *Fetcher) fetchAll(ctx context.Context) {
 		for _, item := range items {
 			if !f.store.ItemExists(ctx, item.ID) {
 				if err := f.store.UpsertItem(ctx, item); err != nil {
-					f.logger.Error("error saving item", slog.Any("error", err))
+					f.logger.Error("error saving item",
+						slog.String("feed", feed.Title),
+						slog.Any("error", err),
+					)
 				}
 			}
 		}
 	}
+
+	f.logger.Info("finished feed fetch cycle",
+		slog.Int("fetched", fetched),
+		slog.Int("errors", errors),
+		slog.Duration("duration", time.Since(start)),
+	)
 
 	if f.onSync != nil {
 		f.onSync(time.Now())
 	}
 }
 
-func (f *Fetcher) fetchFeed(ctx context.Context, parser *gofeed.Parser, feed store.Feed) ([]store.Item, error) {
+// feedParser is the subset of *gofeed.Parser used by fetchFeed. It exists so
+// tests can substitute a fake implementation, e.g. to exercise panic
+// recovery deterministically without depending on gofeed's internals.
+type feedParser interface {
+	Parse(r io.Reader) (*gofeed.Feed, error)
+}
+
+// fetchFeedSafely wraps fetchFeed with a per-feed timeout and panic recovery
+// so that a single malformed or hanging feed cannot stall or crash the
+// entire fetch cycle.
+func (f *Fetcher) fetchFeedSafely(ctx context.Context, parser feedParser, feed store.Feed) (items []store.Item, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			f.logger.Error("panic while fetching feed",
+				slog.String("feed", feed.Title),
+				slog.String("url", feed.URL),
+				slog.Any("panic", r),
+			)
+			err = fmt.Errorf("panic while fetching feed: %v", r)
+		}
+	}()
+
+	fetchCtx, cancel := context.WithTimeout(ctx, fetchTimeout)
+	defer cancel()
+	// Both httpClient.Timeout and fetchCtx use fetchTimeout intentionally:
+	// the client timeout bounds the HTTP request/response itself, while
+	// fetchCtx additionally bounds any work done after the response is
+	// received (e.g. feed parsing), so the whole fetchFeed call is capped
+	// at fetchTimeout regardless of where the time is spent.
+
+	start := time.Now()
+	f.logger.Debug("fetching feed", slog.String("feed", feed.Title), slog.String("url", feed.URL))
+
+	items, err = f.fetchFeed(fetchCtx, parser, feed)
+
+	f.logger.Debug("fetch feed done",
+		slog.String("feed", feed.Title),
+		slog.Int("items", len(items)),
+		slog.Duration("duration", time.Since(start)),
+		slog.Any("error", err),
+	)
+
+	return items, err
+}
+
+func (f *Fetcher) fetchFeed(ctx context.Context, parser feedParser, feed store.Feed) ([]store.Item, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, feed.URL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -99,10 +174,12 @@ func (f *Fetcher) fetchFeed(ctx context.Context, parser *gofeed.Parser, feed sto
 		return nil, fmt.Errorf("http error: %s", resp.Status)
 	}
 
+	f.logger.Debug("parsing feed", slog.String("feed", feed.Title), slog.String("url", feed.URL))
 	parsed, err := parser.Parse(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parsing feed: %w", err)
 	}
+	f.logger.Debug("parsed feed", slog.String("feed", feed.Title), slog.Int("entries", len(parsed.Items)))
 
 	var items []store.Item
 	for _, entry := range parsed.Items {
@@ -190,10 +267,25 @@ func (f *Fetcher) fetchFeed(ctx context.Context, parser *gofeed.Parser, feed sto
 	return items, nil
 }
 
-func (f *Fetcher) extractArticle(url string) string {
+func (f *Fetcher) extractArticle(url string) (result string) {
+	defer func() {
+		if r := recover(); r != nil {
+			f.logger.Error("panic during readability extraction",
+				slog.String("url", url),
+				slog.Any("panic", r),
+			)
+			result = ""
+		}
+	}()
+
+	start := time.Now()
 	article, err := readability.FromURL(url, 15*time.Second)
 	if err != nil {
-		f.logger.Debug("readability extraction failed", slog.String("url", url), slog.Any("error", err))
+		f.logger.Debug("readability extraction failed",
+			slog.String("url", url),
+			slog.Any("error", err),
+			slog.Duration("duration", time.Since(start)),
+		)
 		return ""
 	}
 	if article.Node == nil {
@@ -201,8 +293,13 @@ func (f *Fetcher) extractArticle(url string) string {
 	}
 	var buf strings.Builder
 	if err := article.RenderHTML(&buf); err != nil {
+		f.logger.Debug("readability render failed", slog.String("url", url), slog.Any("error", err))
 		return ""
 	}
+	f.logger.Debug("readability extraction succeeded",
+		slog.String("url", url),
+		slog.Duration("duration", time.Since(start)),
+	)
 	return buf.String()
 }
 
