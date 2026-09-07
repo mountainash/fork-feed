@@ -23,7 +23,7 @@ templ Layout() {
 	<body>
 		<div class="app">
 			<header class="topbar">
-				<a class="brand" href="/" onclick="document.querySelector('.app').classList.remove('sidebar-collapsed','list-collapsed');localStorage.removeItem('sidebar-collapsed');localStorage.removeItem('list-collapsed');">
+				<a class="brand" href="/" onclick="document.querySelector('.app').classList.remove('sidebar-collapsed','list-collapsed','mobile-sidebar-open','mobile-reader-open');localStorage.removeItem('sidebar-collapsed');localStorage.removeItem('list-collapsed');">
 					<img src="/static/assets/logo.png" alt="" class="brand-logo"/>
 					kontrolplane/feed
 				</a>
@@ -70,7 +70,7 @@ templ Layout() {
 		</div>
 		<div id="modal"></div>
 		<script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js" crossorigin="anonymous"></script>
-		<script src="/static/js/hotkeys.js?v=5"></script>
+		<script src="/static/js/hotkeys.js?v=6"></script>
 		<script>
 			(function(){
 				var app=document.querySelector('.app');

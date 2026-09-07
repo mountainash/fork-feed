@@ -919,3 +919,85 @@ kbd, .inline-kbd {
 }
 .list-body .htmx-added,
 .list-body .htmx-settling { animation: hx-flash 0.5s ease; }
+
+/* ===== RESPONSIVE (MOBILE) ===== */
+
+@media (max-width: 768px) {
+  .app {
+    grid-template-columns: 44px 1fr 0px;
+    transition: grid-template-columns 0.2s ease;
+  }
+  .app.sidebar-collapsed,
+  .app.list-collapsed,
+  .app.sidebar-collapsed.list-collapsed { grid-template-columns: 44px 1fr 0px; }
+
+  /* sidebar rail — tap to expand over the whole viewport */
+  .app.mobile-sidebar-open { grid-template-columns: 100vw 0px 0px; }
+
+  /* reader takes over the whole viewport when an item is opened */
+  .app.mobile-reader-open { grid-template-columns: 0px 0px 100vw; }
+  .app.mobile-reader-open.mobile-sidebar-open { grid-template-columns: 100vw 0px 0px; }
+
+  .topbar .brand {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .topbar .search,
+  .topbar .tools .btn:not(:last-child) { display: none; }
+
+  .app.mobile-sidebar-open .topbar .brand {
+    width: auto;
+    padding: 0 18px;
+    justify-content: flex-start;
+    overflow: visible;
+  }
+  .app.mobile-sidebar-open .topbar .search,
+  .app.mobile-sidebar-open .topbar .tools .btn:not(:last-child) { display: flex; }
+
+  /* narrow rail: show only the glyph column of each row */
+  .sidebar { cursor: pointer; }
+  .sidebar h5 { display: none; }
+  .sidebar section { padding: 10px 0 6px; }
+  .sidebar .nav-item {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding: 10px 0;
+    margin: 0;
+  }
+  .sidebar .nav-item span:not(.g) { display: none; }
+  .sidebar .folder .feeds { display: none; }
+
+  .app.mobile-sidebar-open .sidebar { cursor: auto; }
+  .app.mobile-sidebar-open .sidebar h5 { display: flex; }
+  .app.mobile-sidebar-open .sidebar section { padding: 18px 18px 8px; }
+  .app.mobile-sidebar-open .sidebar .nav-item {
+    grid-template-columns: 18px 1fr auto;
+    justify-items: start;
+    padding: 6px;
+    margin: 0 -6px;
+  }
+  .app.mobile-sidebar-open .sidebar .nav-item span { display: inline; }
+  .app.mobile-sidebar-open .sidebar .folder .feeds { display: block; }
+
+  /* reader back affordance, hidden on desktop */
+  .reader-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    opacity: 0.7;
+    cursor: pointer;
+  }
+  .reader-back:hover { opacity: 1; }
+
+  .reader-inner { padding: 24px 18px 80px; }
+  .status { display: none; }
+}
+
+@media (min-width: 769px) {
+  .reader-back { display: none; }
+}

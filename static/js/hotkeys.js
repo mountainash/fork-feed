@@ -9,10 +9,41 @@ function activateItem(el) {
   }
 }
 
-// Set active on any item click
+function isMobileViewport() {
+  return window.matchMedia("(max-width: 768px)").matches;
+}
+
+// Set active on any item click, and on mobile switch to the reader pane
 document.addEventListener("click", function (e) {
   var item = e.target.closest(".list-body .item");
-  if (item) activateItem(item);
+  if (item) {
+    activateItem(item);
+    if (isMobileViewport()) {
+      document.querySelector(".app").classList.add("mobile-reader-open");
+    }
+    return;
+  }
+
+  var back = e.target.closest(".reader-back");
+  if (back) {
+    document.querySelector(".app").classList.remove("mobile-reader-open");
+    return;
+  }
+
+  if (!isMobileViewport()) return;
+
+  var app = document.querySelector(".app");
+  var sidebar = e.target.closest("#sidebar");
+  var navLink = e.target.closest(
+    "#sidebar .nav-item, #sidebar .feed-item, #sidebar .add"
+  );
+
+  if (app.classList.contains("mobile-sidebar-open")) {
+    // navigating (or tapping outside the sidebar) collapses it back to the rail
+    if (navLink || !sidebar) app.classList.remove("mobile-sidebar-open");
+  } else if (sidebar && !navLink) {
+    app.classList.add("mobile-sidebar-open");
+  }
 });
 
 document.addEventListener("keydown", function (e) {
