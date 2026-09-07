@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -16,7 +17,9 @@ import (
 
 // fetchTimeout bounds how long a single feed's HTTP request and parsing may
 // take before it is abandoned, so that one slow or hanging feed cannot stall
-// the whole fetch cycle.
+// the whole fetch cycle. Article extraction via extractArticle uses its own
+// independent 15s timeout (readability.FromURL does not accept a context),
+// so it is bounded separately and is not tied to fetchTimeout/fetchCtx.
 const fetchTimeout = 30 * time.Second
 
 // httpClient is used for all feed requests. It sets an overall timeout so a
@@ -108,10 +111,17 @@ func (f *Fetcher) fetchAll(ctx context.Context) {
 	}
 }
 
+// feedParser is the subset of *gofeed.Parser used by fetchFeed. It exists so
+// tests can substitute a fake implementation, e.g. to exercise panic
+// recovery deterministically without depending on gofeed's internals.
+type feedParser interface {
+	Parse(r io.Reader) (*gofeed.Feed, error)
+}
+
 // fetchFeedSafely wraps fetchFeed with a per-feed timeout and panic recovery
 // so that a single malformed or hanging feed cannot stall or crash the
 // entire fetch cycle.
-func (f *Fetcher) fetchFeedSafely(ctx context.Context, parser *gofeed.Parser, feed store.Feed) (items []store.Item, err error) {
+func (f *Fetcher) fetchFeedSafely(ctx context.Context, parser feedParser, feed store.Feed) (items []store.Item, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			f.logger.Error("panic while fetching feed",
@@ -141,7 +151,7 @@ func (f *Fetcher) fetchFeedSafely(ctx context.Context, parser *gofeed.Parser, fe
 	return items, err
 }
 
-func (f *Fetcher) fetchFeed(ctx context.Context, parser *gofeed.Parser, feed store.Feed) ([]store.Item, error) {
+func (f *Fetcher) fetchFeed(ctx context.Context, parser feedParser, feed store.Feed) ([]store.Item, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, feed.URL, nil)
 	if err != nil {
 		return nil, err

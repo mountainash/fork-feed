@@ -78,18 +78,28 @@ func TestFetchFeedSafelyRecoversFromMalformedFeed(t *testing.T) {
 func TestFetchFeedSafelyRecoversFromPanic(t *testing.T) {
 	fetcher := &Fetcher{logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
 
-	// Passing a nil parser triggers a nil-pointer panic inside gofeed when
-	// Parse is invoked, exercising the panic-recovery path in fetchFeedSafely.
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`<rss></rss>`))
 	}))
 	defer server.Close()
 
-	items, err := fetcher.fetchFeedSafely(context.Background(), nil, store.Feed{ID: "feed-1", URL: server.URL})
+	// panicParser deterministically panics when parsing, exercising the
+	// panic-recovery path in fetchFeedSafely independently of gofeed's
+	// internal behavior.
+	items, err := fetcher.fetchFeedSafely(context.Background(), panicParser{}, store.Feed{ID: "feed-1", URL: server.URL})
 	if err == nil {
 		t.Fatal("expected an error, got nil")
+	}
+	if !strings.Contains(err.Error(), "panic while fetching feed") {
+		t.Fatalf("expected panic error, got %v", err)
 	}
 	if items != nil {
 		t.Fatalf("expected no items, got %v", items)
 	}
+}
+
+type panicParser struct{}
+
+func (panicParser) Parse(io.Reader) (*gofeed.Feed, error) {
+	panic("simulated parser panic")
 }
