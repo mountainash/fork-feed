@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"strings"
 	"time"
 
@@ -83,7 +84,22 @@ func (f *Fetcher) fetchAll(ctx context.Context) {
 }
 
 func (f *Fetcher) fetchFeed(ctx context.Context, parser *gofeed.Parser, feed store.Feed) ([]store.Item, error) {
-	parsed, err := parser.ParseURLWithContext(feed.URL, ctx)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, feed.URL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http error: %s", resp.Status)
+	}
+
+	parsed, err := parser.Parse(resp.Body)
 	if err != nil {
 		return nil, err
 	}
