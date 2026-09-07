@@ -1,0 +1,59 @@
+package worker
+
+import (
+	"context"
+	"io"
+	"log/slog"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/kontrolplane/feed/internal/store"
+	"github.com/mmcdole/gofeed"
+)
+
+func TestFetchFeedSkipsNon200Responses(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	fetcher := &Fetcher{logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	_, err := fetcher.fetchFeed(context.Background(), gofeed.NewParser(), store.Feed{ID: "feed-1", URL: server.URL})
+	if err == nil {
+		t.Fatal("expected an error for non-200 response")
+	}
+	if !strings.Contains(err.Error(), "http error: 404 Not Found") {
+		t.Fatalf("expected 404 error, got %v", err)
+	}
+}
+
+func TestFetchFeedParsesValidFeed(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/rss+xml")
+		_, _ = w.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Test Feed</title>
+    <item>
+      <title>Item One</title>
+      <description>Hello world</description>
+    </item>
+  </channel>
+</rss>`))
+	}))
+	defer server.Close()
+
+	fetcher := &Fetcher{logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	items, err := fetcher.fetchFeed(context.Background(), gofeed.NewParser(), store.Feed{ID: "feed-1", URL: server.URL})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(items) != 1 {
+		t.Fatalf("expected one parsed item, got %d", len(items))
+	}
+	if items[0].Title != "Item One" {
+		t.Fatalf("expected title Item One, got %q", items[0].Title)
+	}
+}
