@@ -24,7 +24,7 @@ export function truncate(s: string, max: number): string {
 
 export function truncateUrl(u: string): string {
   u = u.replace(/^https?:\/\//, "");
-  if (u.length > 40) return u.slice(0, 40) + "…";
+  if (u.length > 40) return u.slice(0, 35) + "…";
   return u;
 }
 

@@ -286,6 +286,10 @@ export class Store {
     this.db.run(`DELETE FROM folders WHERE id=?`, [id]);
   }
 
+  renameFolder(id: string, label: string): void {
+    this.db.run(`UPDATE folders SET label=? WHERE id=?`, [label, id]);
+  }
+
   feedCount(): number {
     return this.db.query<{ n: number }, []>(`SELECT COUNT(*) AS n FROM feeds`).get()?.n ?? 0;
   }

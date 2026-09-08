@@ -821,6 +821,7 @@ kbd, .inline-kbd {
 /* ===== MANAGE FEEDS ===== */
 
 .manage-actions { margin: 24px 0 32px; }
+.manage-add:first-child { border-right: 0; }
 .manage-add {
   padding: 10px 18px;
   font-size: 11px;
@@ -840,15 +841,22 @@ kbd, .inline-kbd {
   justify-content: space-between;
   align-items: center;
 }
-.manage-folder-del {
+.manage-folder-actions { display: flex; align-items: center; }
+.manage-folder-del,
+.manage-folder-rename {
   font-size: 10px;
   letter-spacing: 0.06em;
   opacity: 0;
   transition: opacity var(--ease);
+  background: none;
 }
-.manage-folder:hover .manage-folder-del { opacity: 0.6; }
-.manage-folder-del:hover { opacity: 1; color: var(--err); }
+.manage-folder-rename { margin-right: 14px; }
+.manage-folder:hover .manage-folder-del,
+.manage-folder:hover .manage-folder-rename { opacity: 0.6; }
+.manage-folder-del:hover,
+.manage-folder-rename:hover { opacity: 1; color: var(--err); }
 .manage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.manage-folder.editing > .manage-card { margin-bottom: 12px; }
 
 /* card */
 .manage-card {
@@ -879,7 +887,6 @@ kbd, .inline-kbd {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.manage-card-meta { font-size: 10px; letter-spacing: 0.08em; opacity: 0.45; }
 
 .manage-card-warn     { font: 600 16px var(--grot); letter-spacing: -0.018em; margin-bottom: 8px; }
 .manage-card-warn-sub { font-size: 11px; line-height: 1.5; opacity: 0.7; }

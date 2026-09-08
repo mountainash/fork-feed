@@ -90,6 +90,7 @@ export interface SettingsData {
   markReadOn: string;
   retention: string;
   density: string;
+  version: string;
 }
 
 export interface ManageData {

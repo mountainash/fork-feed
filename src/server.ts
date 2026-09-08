@@ -3,6 +3,7 @@ import { openDb } from "./db";
 import { createFetcher, fetchText, parseFeedMeta } from "./fetcher";
 import { exportOpml, feedIdForUrl, importOpml, importOpmlFileAsync } from "./opml";
 import { Store } from "./store";
+import pkg from "../package.json";
 import type { ListData, ManageData, ReaderData, SettingsData, SidebarData, StatusData, ViewState } from "./types";
 import {
   addFeedModal,
@@ -10,7 +11,9 @@ import {
   manageFeedConfirmDelete,
   manageFeedEdit,
   manageFolderConfirmDelete,
+  manageFolderEdit,
   manageView,
+  oobManage,
   probeError,
   probeResults,
   page as renderPage,
@@ -73,6 +76,7 @@ function settingsData(): SettingsData {
     markReadOn: cfg.markReadOn,
     retention: cfg.retention,
     density: cfg.density,
+    version: pkg.version,
   };
 }
 
@@ -276,7 +280,30 @@ async function handle(req: Request): Promise<Response> {
     if (name === "") return new Response("name required", { status: 400 });
     const id = name.toLowerCase().replaceAll(" ", "-");
     store.upsertFolder({ id, label: name }, store.folderCount());
+    if (viewState.kind === "view" && viewState.id === "manage") {
+      return html(sidebar(sidebarData()) + oobManage(manageData()) + oobStatus(statusData()));
+    }
     return html(sidebar(sidebarData()));
+  }
+
+  if (method === "GET" && (m = /^\/folders\/([^/]+)\/edit$/.exec(path))) {
+    const id = decodeURIComponent(m[1]);
+    const folder = store.folders().find((f) => f.id === id);
+    if (!folder) return new Response("not found", { status: 404 });
+    const feeds = store.feeds().filter((f) => f.folder === id);
+    return html(manageFolderEdit(folder, feeds));
+  }
+
+  if (method === "PUT" && (m = /^\/folders\/([^/]+)$/.exec(path))) {
+    const id = decodeURIComponent(m[1]);
+    const folder = store.folders().find((f) => f.id === id);
+    if (!folder) return new Response("not found", { status: 404 });
+    const form = await req.formData();
+    const name = String(form.get("name") ?? "").trim();
+    if (name === "") return new Response("name required", { status: 400 });
+    store.renameFolder(id, name);
+    viewState = { kind: "view", id: "manage" };
+    return html(manageView(manageData()) + oobSidebar(sidebarData()) + oobStatus(statusData()));
   }
 
   if (method === "GET" && (m = /^\/folders\/([^/]+)\/confirm-delete$/.exec(path))) {
@@ -441,6 +468,9 @@ async function handle(req: Request): Promise<Response> {
       }
       if (!title) title = feedUrl;
       store.addFeed({ id: feedIdForUrl(feedUrl), title, url: feedUrl, folder, siteUrl });
+    }
+    if (viewState.kind === "view" && viewState.id === "manage") {
+      return html(sidebar(sidebarData()) + oobManage(manageData()) + oobStatus(statusData()));
     }
     return html(sidebar(sidebarData()));
   }
