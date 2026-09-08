@@ -1,0 +1,13 @@
+{
+  "name": "kontrolplane/feed",
+  "short_name": "feed",
+  "start_url": "/",
+  "display": "fullscreen",
+  "icons": [
+    {
+      "src": "/static/assets/favicon.ico",
+      "sizes": "196x196",
+      "type": "image/png"
+    }
+  ]
+}

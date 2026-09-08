@@ -213,7 +213,7 @@ async function handle(req: Request): Promise<Response> {
     if (rel.includes("..")) return new Response("not found", { status: 404 });
     const file = Bun.file(`static/${rel}`);
     if (!(await file.exists())) return new Response("not found", { status: 404 });
-    const type = rel.endsWith(".css") ? "text/css" : rel.endsWith(".js") ? "text/javascript" : rel.endsWith(".ico") ? "image/x-icon" : rel.endsWith(".png") ? "image/png" : "application/octet-stream";
+    const type = rel.endsWith(".css") ? "text/css" : rel.endsWith(".js") ? "text/javascript" : rel.endsWith(".json") ? "application/manifest+json" : rel.endsWith(".ico") ? "image/x-icon" : rel.endsWith(".png") ? "image/png" : "application/octet-stream";
     return new Response(file, { headers: { "Content-Type": type, "Cache-Control": "public, max-age=3600" } });
   }
 
