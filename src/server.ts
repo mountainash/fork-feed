@@ -3,8 +3,7 @@ import { openDb } from "./db";
 import { createFetcher, fetchText, parseFeedMeta } from "./fetcher";
 import { exportOpml, feedIdForUrl, importOpml, importOpmlFileAsync } from "./opml";
 import { Store } from "./store";
-import type { ListData, ManageData, PageData, ReaderData, SettingsData, SidebarData, StatusData, ViewState } from "./types";
-import { itemRow, oobReaderReset, oobSidebar, oobStatus, readerContent } from "./views/partials";
+import type { ListData, ManageData, ReaderData, SettingsData, SidebarData, StatusData, ViewState } from "./types";
 import {
   addFeedModal,
   addFolderModal,
@@ -12,19 +11,16 @@ import {
   manageFeedEdit,
   manageFolderConfirmDelete,
   manageView,
-  page as renderPage,
   probeError,
   probeResults,
+  page as renderPage,
   settingsView,
 } from "./views/pages";
-import { itemList, sidebar, status } from "./views/partials";
+import { itemList, itemRow, oobReaderReset, oobSidebar, oobStatus, readerContent, sidebar, status } from "./views/partials";
 
 const cfg = loadConfig();
 const debug = cfg.debug;
 const log = (...args: unknown[]) => console.log(...args);
-const debugLog = (...args: unknown[]) => {
-  if (debug) console.debug(...args);
-};
 
 const db = openDb(cfg.databasePath);
 const store = new Store(db);
@@ -36,7 +32,7 @@ let lastSync = new Date();
 
 if (cfg.feedsFile) {
   try {
-    const n = await importOpmlFileAsync(store, cfg.feedsFile);
+    const n = importOpmlFileAsync(store, cfg.feedsFile);
     log(`imported feeds from file path=${cfg.feedsFile} feeds=${n}`);
   } catch (err) {
     console.error("failed to import feeds file", err);

@@ -5,7 +5,7 @@ COPY package.json bun.lock tsconfig.json ./
 RUN bun install --frozen-lockfile --os=linux --cpu=arm64
 COPY src ./src
 COPY static ./static
-RUN bun run build:linux-arm64-musl
+RUN bun run build:linux-x64-musl
 
 FROM alpine:3.24
 
