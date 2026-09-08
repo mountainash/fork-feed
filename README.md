@@ -19,7 +19,7 @@ Supports full-text search, keyboard-first navigation, timeline filtering (today,
 ## keyboard shortcuts
 
 | Key | Action | Key | Action |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `j` / `k` | next / previous item | `s` | toggle star |
 | `o` / `enter` | open item in reader | `m` | toggle read / unread |
 | `/` | focus search | `n` | add new feed |
@@ -37,7 +37,7 @@ kontrolplane/feed supports `opml` for migrating feeds between readers.
 All configuration is via environment variables.
 
 | Variable | Description | Default |
-|---|---|---|
+| --- | --- | --- |
 | `HOST` | HTTP listen address (use `127.0.0.1` behind a local proxy) | all interfaces |
 | `PORT` | HTTP listen port | `8080` |
 | `MARK_READ_ON` | When items become read: `scroll`, `open`, `manual` | `open` |
@@ -155,7 +155,7 @@ PORT=8080 DATABASE_PATH=/data/feed.db ./dist/kontrolplane-feed
 Cross-compile for a Linux server from macOS:
 
 ```bash
-bun run build:linux-x64
+bun run build:linux-arm64-musl
 ```
 
 ## license
