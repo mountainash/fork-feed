@@ -44,6 +44,14 @@ All configuration is via environment variables.
 | `RETENTION` | Keep read items for: `7d`, `30d`, `90d`, `forever` | `30d` |
 | `DENSITY` | List row density: `tight`, `default`, `loose` | `default` |
 | `REFRESH_INTERVAL` | How often to fetch feeds | `15m` |
+| `FETCH_WORKERS` | Concurrent feed workers (1-8, each feed runs in its own Bun worker) | `2` |
+| `FETCH_FEED_GAP_MS` | Wait between dispatching feeds | `500` |
+| `FETCH_ARTICLE_GAP_MS` | Wait between article fetches inside one feed | `300` |
+| `FETCH_FEED_TIMEOUT_MS` | Per-feed fetch timeout | `15000` |
+| `FETCH_ARTICLE_TIMEOUT_MS` | Per-article fetch timeout | `10000` |
+| `FETCH_MAX_FEED_BYTES` | Max feed body kept in memory (e.g. `5mb`) | `5mb` |
+| `FETCH_MAX_ARTICLE_BYTES` | Max article body kept in memory | `2mb` |
+| `FETCH_MAX_ARTICLES_PER_FEED` | Full-text article fetches per feed per cycle | `20` |
 | `DATABASE_PATH` | SQLite file path | `feed.db` |
 | `FEEDS_FILE` | Path to an OPML file to import on startup | `` |
 | `DEVELOPMENT_DEBUG` | Enable debug logging | `false` |

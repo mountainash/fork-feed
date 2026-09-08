@@ -47,7 +47,18 @@ if (cfg.seed) {
 
 const fetcher = createFetcher(store, cfg.refreshIntervalMs, (t) => {
   lastSync = t;
-}, debug);
+}, debug, {
+  maxWorkers: cfg.maxWorkers,
+  feedGapMs: cfg.feedGapMs,
+  job: {
+    feedTimeoutMs: cfg.feedTimeoutMs,
+    articleTimeoutMs: cfg.articleTimeoutMs,
+    maxFeedBytes: cfg.maxFeedBytes,
+    maxArticleBytes: cfg.maxArticleBytes,
+    maxArticlesPerFeed: cfg.maxArticlesPerFeed,
+    articleGapMs: cfg.articleGapMs,
+  },
+});
 fetcher.start();
 
 function sidebarData(): SidebarData {
