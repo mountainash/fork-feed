@@ -1,0 +1,13 @@
+dist/
+.git/
+.github/
+node_modules/
+
+feed.db
+feed.db-wal
+
+README.md
+LICENSE
+
+docker-compose.yml
+fly.toml

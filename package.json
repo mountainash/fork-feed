@@ -1,10 +1,13 @@
 {
-  "name": "kontrolplane-feed",
-  "version": "1.0.0",
+  "name": "feed",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "description": "Self-hosted RSS reader — Bun + HTMX + SQLite as a single-file executable.",
-  "scripts": {
+   "author": {
+	"name": "Mountain/\\Ash"
+    },
+    "scripts": {
     "dev": "bun --hot ./src/server.ts",
     "start": "bun ./src/server.ts",
     "build": "bun build --compile --minify ./src/server.ts --outfile ./dist/kontrolplane-feed",
