@@ -88,6 +88,26 @@ export function parseEntry(e: string): ParsedEntry {
   return { guid, title, link, description, content, categories, authorNames, published };
 }
 
+export interface FeedMeta {
+  title: string;
+  siteUrl: string;
+  description: string;
+}
+
+export function parseFeedMeta(xml: string, fallbackUrl: string): FeedMeta {
+  const channel = /<channel[^>]*>([\s\S]*?)<\/channel>/i.exec(xml)?.[1] ?? xml;
+  const title = stripHtml(firstTag(channel, ["title"]));
+  let siteUrl = firstTag(channel, ["link"]);
+  if (siteUrl.includes("<")) {
+    const href = /href\s*=\s*"([^"]+)"/i.exec(channel) ?? /href\s*=\s*'([^']+)'/i.exec(channel);
+    siteUrl = (href?.[1] ?? stripHtml(siteUrl)).trim();
+  } else {
+    siteUrl = siteUrl.trim();
+  }
+  const description = stripHtml(firstTag(channel, ["description", "subtitle", "tagline"]));
+  return { title: title || fallbackUrl, siteUrl, description };
+}
+
 export function entryDate(iso: string, fallback: string): string {
   if (!iso) return fallback;
   const d = new Date(iso);
@@ -129,7 +149,7 @@ export function extractMainHtml(html: string): string {
   return "";
 }
 
-async function fetchText(url: string, timeoutMs: number, log?: (msg: string) => void): Promise<string | null> {
+export async function fetchText(url: string, timeoutMs: number, log?: (msg: string) => void): Promise<string | null> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {

@@ -51,7 +51,7 @@ export function oobReaderReset(): string {
 }
 
 export function statusInner(data: StatusData): string {
-  return `<div class="seg"><span class="k">[ view ]</span><span>${esc(data.viewTitle)}</span></div><div class="seg"><span class="k">[ items ]</span><span>${data.filteredLen} / ${data.totalLen}</span></div><div class="seg"><span class="k">[ unread ]</span><span>${data.unreadCount}</span></div><div class="right"><span><kbd>j</kbd><kbd>k</kbd> navigate</span><span><kbd>o</kbd> open</span><span><kbd>s</kbd> star</span><span><kbd>/</kbd> search</span><span><kbd>1</kbd> sidebar</span><span><kbd>2</kbd> list</span><span>·</span><span>${data.feedCount} feeds · ${esc(data.lastSync)}</span></div>`;
+  return `<div class="seg"><span class="k">[ view ]</span><span>${esc(data.viewTitle)}</span></div><div class="seg"><span class="k">[ items ]</span><span>${data.filteredLen} / ${data.totalLen}</span></div><div class="seg"><span class="k">[ unread ]</span><span>${data.unreadCount}</span></div><div class="right"><span class="hints"><span><kbd>j</kbd><kbd>k</kbd> navigate</span><span><kbd>o</kbd> open</span><span><kbd>s</kbd> star</span><span><kbd>/</kbd> search</span><span><kbd>1</kbd> sidebar</span><span><kbd>2</kbd> list</span><span>·</span></span><span>${data.feedCount} feeds · ${esc(data.lastSync)}</span></div>`;
 }
 
 export function status(data: StatusData): string {

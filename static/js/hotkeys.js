@@ -13,6 +13,16 @@ function isMobileViewport() {
   return window.matchMedia("(max-width: 768px)").matches;
 }
 
+function updateSearchPlaceholder() {
+  var search = document.querySelector('.topbar .search input[name="q"]');
+  if (search) search.placeholder = isMobileViewport() ? "search" : "search items, authors, abstracts…";
+}
+
+updateSearchPlaceholder();
+var mq = window.matchMedia("(max-width: 768px)");
+if (mq.addEventListener) mq.addEventListener("change", updateSearchPlaceholder);
+else if (mq.addListener) mq.addListener(updateSearchPlaceholder);
+
 // Set active on any item click, and on mobile switch to the reader pane
 document.addEventListener("click", function (e) {
   var item = e.target.closest(".list-body .item");
@@ -68,16 +78,14 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "j" || e.key === "k") {
     e.preventDefault();
     var items = Array.from(document.querySelectorAll(".list-body .item"));
+    if (items.length === 0) return;
     var active = document.querySelector(".list-body .item.active");
-    var idx = active ? items.indexOf(active) : -1;
+    var idx = active ? items.indexOf(active) : (e.key === "j" ? -1 : 0);
     var next =
       e.key === "j"
         ? Math.min(items.length - 1, idx + 1)
         : Math.max(0, idx - 1);
-    if (items[next]) {
-      activateItem(items[next]);
-      items[next].click();
-    }
+    if (items[next]) activateItem(items[next]);
     return;
   }
 

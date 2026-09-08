@@ -184,6 +184,7 @@ kbd, .inline-kbd {
   white-space: nowrap;
 }
 .topbar .brand-logo { height: 18px; width: auto; flex-shrink: 0; }
+.topbar .brand-name { overflow: hidden; text-overflow: ellipsis; }
 
 .topbar .search {
   display: flex;
@@ -943,11 +944,15 @@ kbd, .inline-kbd {
   .topbar .brand {
     width: 44px;
     padding: 0;
-    justify-content: center;
+    justify-content: flex-start;
     overflow: hidden;
   }
+  .topbar .brand .brand-name { display: none; }
+  .topbar .brand .brand-logo { margin: 0 auto; }
+  .topbar .search kbd,
+  .topbar .tools .btn-add-folder { display: none; }
   .topbar .search,
-  .topbar .tools .btn:not(:last-child) { display: none; }
+  .topbar .tools .btn:not(:last-child):not(.btn-add-folder) { display: none; }
 
   .app.mobile-sidebar-open .topbar .brand {
     width: auto;
@@ -955,8 +960,12 @@ kbd, .inline-kbd {
     justify-content: flex-start;
     overflow: visible;
   }
+  .app.mobile-sidebar-open .topbar .brand .brand-name { display: inline; }
+  .app.mobile-sidebar-open .topbar .brand .brand-logo { margin: 0; }
+  .app.mobile-sidebar-open .topbar .search kbd { display: none; }
+  .app.mobile-sidebar-open .topbar .tools .btn-add-folder { display: none; }
   .app.mobile-sidebar-open .topbar .search,
-  .app.mobile-sidebar-open .topbar .tools .btn:not(:last-child) { display: flex; }
+  .app.mobile-sidebar-open .topbar .tools .btn:not(:last-child):not(.btn-add-folder) { display: flex; }
 
   /* narrow rail: show only the glyph column of each row */
   .sidebar { cursor: pointer; }
@@ -997,7 +1006,8 @@ kbd, .inline-kbd {
   .reader-back:hover { opacity: 1; }
 
   .reader-inner { padding: 24px 18px 80px; }
-  .status { display: none; }
+  .status .right .hints { display: none; }
+  .status { gap: 12px; padding: 0 12px; }
 }
 
 @media (min-width: 769px) {

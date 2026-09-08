@@ -1,6 +1,6 @@
 import { loadConfig } from "./config";
 import { openDb } from "./db";
-import { createFetcher } from "./fetcher";
+import { createFetcher, fetchText, parseFeedMeta } from "./fetcher";
 import { exportOpml, feedIdForUrl, importOpml, importOpmlFileAsync } from "./opml";
 import { Store } from "./store";
 import type { ListData, ManageData, PageData, ReaderData, SettingsData, SidebarData, StatusData, ViewState } from "./types";
@@ -13,6 +13,7 @@ import {
   manageFolderConfirmDelete,
   manageView,
   page as renderPage,
+  probeError,
   probeResults,
   settingsView,
 } from "./views/pages";
@@ -401,8 +402,16 @@ async function handle(req: Request): Promise<Response> {
 
   if (method === "POST" && path === "/feeds/probe") {
     const form = await req.formData();
-    const feedUrl = String(form.get("url") ?? "");
-    return html(probeResults(feedUrl, store.folders()));
+    const feedUrl = String(form.get("url") ?? "").trim();
+    if (!feedUrl) return html(probeError("", store.folders()));
+    const xml = await fetchText(feedUrl, 15_000).catch(() => null);
+    if (xml === null) return html(probeError(feedUrl, store.folders()));
+    try {
+      const meta = parseFeedMeta(xml, feedUrl);
+      return html(probeResults(feedUrl, store.folders(), meta));
+    } catch {
+      return html(probeError(feedUrl, store.folders()));
+    }
   }
 
   if (method === "POST" && path === "/feeds/subscribe") {
@@ -410,8 +419,21 @@ async function handle(req: Request): Promise<Response> {
     const feedUrl = String(form.get("feed_url") ?? "");
     const folder = await resolveFolder(form);
     if (feedUrl !== "" && folder !== "") {
-      const title = String(form.get("title") ?? "") || feedUrl;
-      store.addFeed({ id: feedIdForUrl(feedUrl), title, url: feedUrl, folder, siteUrl: "" });
+      let title = String(form.get("title") ?? "");
+      let siteUrl = "";
+      if (!title || title === feedUrl) {
+        const xml = await fetchText(feedUrl, 15_000).catch(() => null);
+        if (xml !== null) {
+          try {
+            const meta = parseFeedMeta(xml, feedUrl);
+            if (!title || title === feedUrl) title = meta.title;
+            siteUrl = meta.siteUrl;
+          } catch {
+          }
+        }
+      }
+      if (!title) title = feedUrl;
+      store.addFeed({ id: feedIdForUrl(feedUrl), title, url: feedUrl, folder, siteUrl });
     }
     return html(sidebar(sidebarData()));
   }
