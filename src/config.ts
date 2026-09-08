@@ -42,7 +42,7 @@ function boolEnv(v: string | undefined, fallback: boolean): boolean {
 
 export function loadConfig(): Config {
   const env = Bun.env;
-  const refreshIntervalMs = parseDurationMs(env.REFRESH_INTERVAL ?? "15m", 15 * 60 * 1000);
+  const refreshIntervalMs = parseDurationMs(env.REFRESH_INTERVAL ?? "1h", 60 * 60 * 1000);
   return {
     host: env.HOST ?? "",
     port: Number.parseInt(env.PORT ?? "8080", 10) || 8080,
