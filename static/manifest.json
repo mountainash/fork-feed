@@ -3,10 +3,12 @@
   "short_name": "feed",
   "start_url": "/",
   "display": "fullscreen",
+  "theme_color": "#14325C",
+  "background_color": "#F4E8C1",
   "icons": [
     {
-      "src": "/static/assets/favicon.ico",
-      "sizes": "196x196",
+      "src": "/static/assets/logo.png",
+      "sizes": "119x115",
       "type": "image/png"
     }
   ]
