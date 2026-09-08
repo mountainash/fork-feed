@@ -1,0 +1,20 @@
+{
+	"name": "feed",
+	"version": "2.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Self-hosted RSS reader — Bun + HTMX + SQLite as a single-file executable.",
+	"author": {
+		"name": "Mountain/\\Ash"
+	},
+	"scripts": {
+		"dev": "bun --hot ./src/server.ts",
+		"start": "bun ./src/server.ts",
+		"build": "bun build --compile --minify ./src/server.ts --outfile ./dist/kontrolplane-feed",
+		"build:linux-x64-musl": "bun build --compile --minify --bytecode --target=bun-linux-x64-musl ./src/server.ts --outfile ./dist/kontrolplane-feed",
+		"clean": "rm -rf dist feed.db feed.db-shm feed.db-wal tmp"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.4.1"
+	}
+}

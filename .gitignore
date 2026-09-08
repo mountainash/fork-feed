@@ -1,6 +1,9 @@
 feed.db
 feed.db-shm
 feed.db-wal
-kontrolplane-feed
 .env
 tmp/
+dist/
+node_modules/
+bun.lockb
+*.log

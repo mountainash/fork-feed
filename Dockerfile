@@ -1,25 +1,21 @@
-FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS build
-
-ARG TARGETOS
-ARG TARGETARCH
-
-RUN go install github.com/a-h/templ/cmd/templ@v0.3.1001
+FROM oven/bun:1 AS build
 
 WORKDIR /src
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
+COPY package.json bun.lock tsconfig.json ./
+RUN bun install --frozen-lockfile --os=linux
+COPY src ./src
+COPY static ./static
+RUN bun run build
 
-RUN templ generate
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /bin/kontrolplane-feed ./cmd/server
+FROM debian:bookworm-slim
 
-FROM alpine:3.21
-
-RUN apk add --no-cache ca-certificates
-COPY --from=cloudflare/cloudflared:2026.8.3 /usr/local/bin/cloudflared /usr/local/bin/cloudflared
-COPY --from=build /bin/kontrolplane-feed /usr/local/bin/
+# Certificates needed by Cloudflared to call back to cloudflareaccess.com for incoming key verification
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+COPY --from=cloudflare/cloudflared:2026.8.3 /usr/local/bin/cloudflared /usr/local/bin/
+COPY --from=build /src/dist/kontrolplane-feed /usr/local/bin/
 COPY --from=build /src/static /app/static
-COPY --from=build /src/templates /app/templates
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
