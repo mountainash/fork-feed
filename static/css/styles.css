@@ -48,8 +48,11 @@
 
 /* ===== RESET ===== */
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
+*,
+*::before,
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html,
+body { height: 100%; }
 
 body {
   background: var(--cream);
@@ -567,7 +570,7 @@ kbd,
   overflow-y: auto;
   background: var(--cream);
 
-  &-inner {
+  .reader-inner {
     max-width: 680px;
     margin: 0 auto;
     padding: 48px 56px 120px;
@@ -988,7 +991,7 @@ kbd,
 
 /* ===== MANAGE FEEDS ===== */
 
-.manage-actions { margin: 24px 0 32px; }
+.manage-actions { margin: 24px 0 32px;  }
 
 .manage-add {
   padding: 10px 18px;
@@ -997,7 +1000,6 @@ kbd,
   border: 1px solid var(--rule-strong);
   transition: all var(--ease);
 
-  &:first-child { border-right: 0; }
   &:hover { background: var(--cream-2); }
 }
 
@@ -1008,7 +1010,7 @@ kbd,
 
   &:hover {
     .manage-folder-del,
-.manage-folder-rename { opacity: 0.6; }
+    .manage-folder-rename { opacity: 0.6; }
   }
 }
 
@@ -1150,14 +1152,6 @@ kbd,
 .reader-back { display: none; }
 
 @media (max-width: 768px) {
-  kbd,
-  .inline-kbd,
-  .brand-name,
-  .tools .btn-add-folder,
-  .tools .btn:not(:last-child):not(.btn-add-folder) {
-    display: none !important;
-  }
-
   .app {
     grid-template-columns: 44px 1fr 0;
     transition: grid-template-columns 0.2s ease;
@@ -1190,7 +1184,7 @@ kbd,
   .app.mobile-sidebar-open {
     .topbar {
       .brand {
-        width: auto;
+        width: 100%;
         padding: 0 18px;
         justify-content: flex-start;
         overflow: visible;
@@ -1199,10 +1193,8 @@ kbd,
         .brand-logo { margin: 0; }
       }
 
-      .tools .btn-add-folder { display: none; }
-
-      .search,
-      .tools .btn:not(:last-child):not(.btn-add-folder) { display: flex; }
+      .tools,
+      .search { display: none; }
     }
 
     .sidebar {
@@ -1244,6 +1236,18 @@ kbd,
     .folder .feeds { display: none; }
   }
 
+  kbd,
+  .inline-kbd,
+  .brand-name,
+  .topbar .tools .btn-add-folder {
+    display: none;
+  }
+  .tools {
+      justify-content: flex-end;
+  }
+
+  .reader-inner { padding: 24px 18px 80px; }
+
   /* reader back affordance, hidden on desktop */
   .reader-back {
     display: inline-flex;
@@ -1257,8 +1261,6 @@ kbd,
 
     &:hover { opacity: 1; }
   }
-
-  .reader-inner { padding: 24px 18px 80px; }
 
   .status {
     gap: 12px;
