@@ -1,15 +1,38 @@
 {
-  "name": "kontrolplane/feed",
-  "short_name": "feed",
-  "start_url": "/",
-  "display": "fullscreen",
-  "theme_color": "#14325C",
-  "background_color": "#F4E8C1",
-  "icons": [
-    {
-      "src": "/static/assets/logo.png",
-      "sizes": "119x115",
-      "type": "image/png"
-    }
-  ]
+	"name": "kontrolplane/feed",
+	"short_name": "feed",
+	"start_url": "?ref=pwa",
+	"display": "fullscreen",
+	"theme_color": "#14325C",
+	"background_color": "#FFF1CC",
+	"color_scheme_dark": {
+		"theme_color": "#A0B4CC",
+		"background_color": "#0E1117"
+	},
+	"icons": [
+		{
+			"src": "/static/assets/logo.png",
+			"sizes": "119x115",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/static/assets/apple-touch-icon.png",
+			"sizes": "180x180",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/static/assets/logo-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/static/assets/logo-1024x1024.png",
+			"sizes": "1024x1024",
+			"type": "image/png",
+			"purpose": "any"
+		}
+	]
 }
