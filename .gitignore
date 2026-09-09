@@ -2,6 +2,7 @@ feed.db
 feed.db-shm
 feed.db-wal
 .env
+.DS_Store
 tmp/
 dist/
 node_modules/

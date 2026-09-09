@@ -1,9 +1,9 @@
+import pkg from "../package.json";
 import { loadConfig } from "./config";
 import { openDb } from "./db";
 import { createFetcher, fetchText, parseFeedMeta } from "./fetcher";
 import { exportOpml, feedIdForUrl, importOpml, importOpmlFileAsync } from "./opml";
 import { Store } from "./store";
-import pkg from "../package.json";
 import type { ListData, ManageData, ReaderData, SettingsData, SidebarData, StatusData, ViewState } from "./types";
 import {
   addFeedModal,
@@ -39,7 +39,7 @@ if (cfg.feedsFile) {
     log(`imported feeds from file path=${cfg.feedsFile} feeds=${n}`);
   } catch (err) {
     console.error("failed to import feeds file", err);
-    process.exit(1);
+    // process.exit(1);
   }
 }
 
@@ -260,12 +260,12 @@ async function handle(req: Request): Promise<Response> {
   }
 
   if (method === "GET" && path === "/feeds/new") {
-    return html(addFeedModal(store.folders()));
+    return html(addFeedModal());
   }
 
   if (method === "GET" && (m = /^\/feeds\/([^/]+)$/.exec(path))) {
     const id = decodeURIComponent(m[1]);
-    if (id === "new") return html(addFeedModal(store.folders()));
+    if (id === "new") return html(addFeedModal());
     viewState = { kind: "feed", id };
     query = "";
     if (isHtmx(req)) return html(renderList() + oobSidebar(sidebarData()) + oobStatus(statusData()) + oobReaderReset());
