@@ -126,8 +126,8 @@ input, textarea { font: inherit; color: inherit; }
   }
 }
 
-/* shared kbd */
-kbd, .inline-kbd {
+kbd,
+.inline-kbd {
   font: 10px var(--mono);
   padding: 1px 5px;
   border: 1px solid var(--rule-strong);
@@ -151,9 +151,9 @@ kbd, .inline-kbd {
 
   & > * { min-width: 0; }
 
-  &.sidebar-collapsed { grid-template-columns: 0px minmax(380px, 460px) 1fr; }
-  &.list-collapsed { grid-template-columns: 260px 0px 1fr; }
-  &.sidebar-collapsed.list-collapsed { grid-template-columns: 0px 0px 1fr; }
+  &.sidebar-collapsed { grid-template-columns: 0 minmax(380px, 460px) 1fr; }
+  &.list-collapsed { grid-template-columns: 260px 0 1fr; }
+  &.sidebar-collapsed.list-collapsed { grid-template-columns: 0 0 1fr; }
 
   &.sidebar-collapsed .sidebar {
     overflow: hidden;
@@ -1007,7 +1007,8 @@ kbd, .inline-kbd {
   &.editing > .manage-card { margin-bottom: 12px; }
 
   &:hover {
-    .manage-folder-del, .manage-folder-rename { opacity: 0.6; }
+    .manage-folder-del,
+.manage-folder-rename { opacity: 0.6; }
   }
 }
 
@@ -1142,28 +1143,37 @@ kbd, .inline-kbd {
 }
 
 .list-body {
-  .htmx-added, .htmx-settling { animation: hx-flash 0.5s ease; }
+  .htmx-added,
+.htmx-settling { animation: hx-flash 0.5s ease; }
 }
 
-/* ===== RESPONSIVE (MOBILE) ===== */
+.reader-back { display: none; }
 
 @media (max-width: 768px) {
+  kbd,
+  .inline-kbd,
+  .brand-name,
+  .tools .btn-add-folder,
+  .tools .btn:not(:last-child):not(.btn-add-folder) {
+    display: none !important;
+  }
+
   .app {
-    grid-template-columns: 44px 1fr 0px;
+    grid-template-columns: 44px 1fr 0;
     transition: grid-template-columns 0.2s ease;
 
     /* override the desktop sidebar/list collapse states (defined earlier, same
        specificity) so the hotkeys-driven toggles don't shrink the mobile rail */
     &.sidebar-collapsed,
     &.list-collapsed,
-    &.sidebar-collapsed.list-collapsed { grid-template-columns: 44px 1fr 0px; }
+    &.sidebar-collapsed.list-collapsed { grid-template-columns: 44px 1fr 0; }
 
     /* sidebar rail — tap to expand over the whole viewport */
-    &.mobile-sidebar-open { grid-template-columns: 100vw 0px 0px; }
+    &.mobile-sidebar-open { grid-template-columns: 100vw 0 0; }
 
     /* reader takes over the whole viewport when an item is opened */
-    &.mobile-reader-open { grid-template-columns: 0px 0px 100vw; }
-    &.mobile-reader-open.mobile-sidebar-open { grid-template-columns: 100vw 0px 0px; }
+    &.mobile-reader-open { grid-template-columns: 0 0 100vw; }
+    &.mobile-reader-open.mobile-sidebar-open { grid-template-columns: 100vw 0 0; }
   }
 
   .topbar {
@@ -1173,17 +1183,8 @@ kbd, .inline-kbd {
       justify-content: flex-start;
       overflow: hidden;
 
-      .brand-name { display: none; }
       .brand-logo { margin: 0 auto; }
     }
-
-    .search {
-      kbd { display: none; }
-    }
-
-    .tools .btn-add-folder { display: none; }
-
-    .search, .tools .btn:not(:last-child):not(.btn-add-folder) { display: none; }
   }
 
   .app.mobile-sidebar-open {
@@ -1198,13 +1199,10 @@ kbd, .inline-kbd {
         .brand-logo { margin: 0; }
       }
 
-      .search {
-        kbd { display: none; }
-      }
-
       .tools .btn-add-folder { display: none; }
 
-      .search, .tools .btn:not(:last-child):not(.btn-add-folder) { display: flex; }
+      .search,
+      .tools .btn:not(:last-child):not(.btn-add-folder) { display: flex; }
     }
 
     .sidebar {
@@ -1268,8 +1266,4 @@ kbd, .inline-kbd {
 
     .right .hints { display: none; }
   }
-}
-
-@media (min-width: 769px) {
-  .reader-back { display: none; }
 }

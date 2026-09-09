@@ -91,7 +91,13 @@ export function readerNav(prevId: string, nextId: string): string {
 }
 
 export function readerEmpty(): string {
-  return `<button type="button" class="reader-back" aria-label="back to item list">← back to list</button><div class="empty"><div class="stagger"><i></i><i></i><i></i></div><div class="big">pick an item.</div><div style="font-size:11px;letter-spacing:0.08em;opacity:0.7;margin-top:10px"><span class="inline-kbd">j</span> / <span class="inline-kbd">k</span> navigate · <span class="inline-kbd">o</span> open · <span class="inline-kbd">s</span> star</div></div>`;
+  return `
+    <div class="btns">
+      <button type="button" class="reader-back" aria-label="back to item list">
+        ← back to list
+      </button>
+    </div>
+    <div class="empty"><div class="stagger"><i></i><i></i><i></i></div><div class="big">pick an item.</div><div style="font-size:11px;letter-spacing:0.08em;opacity:0.7;margin-top:10px"><span class="inline-kbd">j</span> / <span class="inline-kbd">k</span> navigate · <span class="inline-kbd">o</span> open · <span class="inline-kbd">s</span> star</div></div>`;
 }
 
 export function readerContent(opts: { id: string; title: string; tag: string; date: string; minutes: number; folder: string; authors: string; abstract: string; body: string; link: string; feedTitle: string | null; feedUrl: string | null; starred: boolean; read: boolean; prevId: string; nextId: string }): string {

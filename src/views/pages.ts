@@ -15,7 +15,7 @@ export function layout(inner: string): string {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>kontrolplane/feed</title>
-    <meta name="theme-color" content="#FFF1CC">
+    <meta name="theme-color" content="#F4E8C1">
     <meta name="theme-color" content="#0E1117" media="(prefers-color-scheme: dark)">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png" />
     <link rel="manifest" href="/static/manifest.json">
