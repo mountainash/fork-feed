@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import type { Feed, Item } from "./types";
 import {
   decodeEntities,
   entryDate,
@@ -10,6 +9,7 @@ import {
   splitEntries,
   stripHtml,
 } from "./feed-parse";
+import type { Feed, Item } from "./types";
 
 export interface FeedJobOptions {
   feedTimeoutMs: number;
@@ -50,7 +50,7 @@ export async function fetchTextCapped(
   timeoutMs: number,
   maxBytes: number,
   log?: (msg: string) => void,
-): Promise<{ text: string; bytes: number; truncated: boolean } | null> {
+): Promise<{ text: string; bytes: number; truncated: boolean; } | null> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -84,7 +84,7 @@ export async function fetchTextCapped(
     const chunks: Uint8Array[] = [];
     let bytes = 0;
     let truncated = false;
-    for (;;) {
+    for (; ;) {
       const { done, value } = await reader.read();
       if (done) break;
       if (value) {
@@ -122,7 +122,7 @@ export function buildItem(feed: Feed, e: ReturnType<typeof parseEntry>, today: s
   const date = entryDate(e.published, today);
   const authors = e.authorNames.join(" · ");
   let abstract = stripHtml(decodeEntities(e.description || e.content));
-  if (abstract.length > 300) abstract = abstract.slice(0, 300) + "…";
+  if (abstract.length > 300) abstract = `${abstract.slice(0, 300)}…`;
   const tag = guessTag(e.categories, e.content);
   const body = e.content || e.description;
   const minutes = readingMinutes(stripHtml(decodeEntities(body)) || abstract);
@@ -170,7 +170,7 @@ export async function processFeed(feed: Feed, today: string, opts: FeedJobOption
     if (item.link && out.length < opts.maxArticlesPerFeed) {
       try {
         const article = await fetchTextCapped(item.link, opts.articleTimeoutMs, opts.maxArticleBytes, log);
-        if (article && article.text) {
+        if (article?.text) {
           try {
             const extracted = extractMainHtml(article.text);
             if (extracted) {

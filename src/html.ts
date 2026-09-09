@@ -1,5 +1,5 @@
 import { esc } from "./opml";
-import type { Feed, Folder, Item } from "./types";
+import type { Feed, Item } from "./types";
 
 export function formatDate(iso: string): string {
   const d = new Date(`${iso}T00:00:00`);
@@ -18,13 +18,13 @@ export function pad2(n: number): string {
 }
 
 export function truncate(s: string, max: number): string {
-  if (s.length > max) return s.slice(0, max) + "…";
+  if (s.length > max) return `${s.slice(0, max)}…`;
   return s;
 }
 
 export function truncateUrl(u: string): string {
   u = u.replace(/^https?:\/\//, "");
-  if (u.length > 40) return u.slice(0, 35) + "…";
+  if (u.length > 40) return `${u.slice(0, 35)}…`;
   return u;
 }
 

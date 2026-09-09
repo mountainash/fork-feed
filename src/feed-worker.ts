@@ -1,5 +1,5 @@
-import type { Feed, Item } from "./types";
 import { DEFAULT_FEED_JOB_OPTIONS, type FeedJobOptions, processFeed } from "./feed-job";
+import type { Feed, Item } from "./types";
 
 export interface FeedWorkRequest {
   type: "process-feed";
@@ -19,7 +19,7 @@ declare function postMessage(msg: FeedWorkResponse): void;
 
 self.onmessage = async (event: MessageEvent<FeedWorkRequest>) => {
   const req = event.data;
-  if (!req || req.type !== "process-feed") {
+  if (req?.type !== "process-feed") {
     postMessage({ ok: false, error: "unknown request" });
     return;
   }

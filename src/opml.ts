@@ -54,10 +54,10 @@ export function parseOpmlOutlines(xml: string): OpmlOutline[] {
       continue;
     }
     const node: OpmlOutline = {
-      text: attrs["text"] ?? "",
-      title: attrs["title"] ?? "",
-      xmlUrl: attrs["xmlurl"] ?? "",
-      htmlUrl: attrs["htmlurl"] ?? "",
+      text: attrs.text ?? "",
+      title: attrs.title ?? "",
+      xmlUrl: attrs.xmlurl ?? "",
+      htmlUrl: attrs.htmlurl ?? "",
       children: [],
     };
     stack[stack.length - 1].push(node);
@@ -77,7 +77,7 @@ export function feedIdForUrl(feedUrl: string): string {
 
 function importOutline(store: Store, o: OpmlOutline, folderId: string): number {
   if (!o.xmlUrl) return 0;
-  let title = o.title || o.text || o.xmlUrl;
+  const title = o.title || o.text || o.xmlUrl;
   store.addFeed({ id: feedIdForUrl(o.xmlUrl), title, url: o.xmlUrl, folder: folderId, siteUrl: o.htmlUrl });
   return 1;
 }

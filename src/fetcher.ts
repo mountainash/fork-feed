@@ -1,4 +1,4 @@
-import { DEFAULT_FEED_JOB_OPTIONS, buildItem, fetchTextCapped, itemId as jobItemId, processFeed, type FeedJobOptions } from "./feed-job";
+import { buildItem, DEFAULT_FEED_JOB_OPTIONS, type FeedJobOptions, fetchTextCapped, itemId as jobItemId, processFeed } from "./feed-job";
 import {
   decodeEntities,
   entryDate,
@@ -84,7 +84,7 @@ async function runFeedInWorker(
   today: string,
   jobOpts: FeedJobOptions,
   workerTimeoutMs: number,
-): Promise<{ items: Item[]; errors: number }> {
+): Promise<{ items: Item[]; errors: number; }> {
   let worker: Worker;
   try {
     worker = new Worker(new URL("./feed-worker.ts", import.meta.url).href);
@@ -93,7 +93,7 @@ async function runFeedInWorker(
   }
   const req: FeedWorkRequest = { type: "process-feed", feed, today, options: jobOpts };
   try {
-    return await new Promise<{ items: Item[]; errors: number }>((resolve, reject) => {
+    return await new Promise<{ items: Item[]; errors: number; }>((resolve, reject) => {
       const timer = setTimeout(() => {
         try {
           worker.terminate();
@@ -167,7 +167,7 @@ export function createFetcher(store: Store, intervalMs: number, onSync: (t: Date
       let next = 0;
 
       async function loop() {
-        for (;;) {
+        for (; ;) {
           const i = next++;
           if (i >= feeds.length) return;
           const feed = feeds[i];

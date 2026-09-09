@@ -1,20 +1,23 @@
 {
-	"name": "feed",
-	"version": "2.2.1",
-	"private": true,
-	"type": "module",
-	"description": "Self-hosted RSS reader — Bun + HTMX + SQLite as a single-file executable.",
-	"author": {
-		"name": "Mountain/\\Ash"
-	},
-	"scripts": {
-		"dev": "bun run --hot ./src/server.ts",
-		"start": "bun run ./src/server.ts",
-		"build": "bun build --compile ./src/server.ts --outfile ./dist/kontrolplane-feed",
-		"build:linux-x64-musl": "bun build --compile --minify --bytecode --target=bun-linux-x64-musl ./src/server.ts --outfile ./dist/kontrolplane-feed",
-		"clean": "rm -rf dist feed.db feed.db-shm feed.db-wal tmp"
-	},
-	"devDependencies": {
-		"@types/bun": "^1.4.1"
-	}
+  "name": "feed",
+  "version": "2.2.1",
+  "private": true,
+  "type": "module",
+  "description": "Self-hosted RSS reader — Bun + HTMX + SQLite as a single-file executable.",
+  "author": {
+    "name": "Mountain/\\Ash"
+  },
+  "scripts": {
+    "dev": "bun run --hot ./src/server.ts",
+    "start": "bun run ./src/server.ts",
+    "build": "bun build --compile ./src/server.ts --outfile ./dist/kontrolplane-feed",
+    "build:linux-x64-musl": "bun build --compile --minify --bytecode --target=bun-linux-x64-musl ./src/server.ts --outfile ./dist/kontrolplane-feed",
+    "clean": "rm -rf dist feed.db feed.db-shm feed.db-wal tmp"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.1"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  }
 }

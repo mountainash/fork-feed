@@ -15,7 +15,7 @@ function shiftedStr(daysAgo: number): string {
 }
 
 export class Store {
-  constructor(private db: Database) {}
+  constructor (private db: Database) { }
 
   upsertFolder(f: Folder, pos: number): void {
     this.db.run(
@@ -64,12 +64,12 @@ export class Store {
   }
 
   folders(): Folder[] {
-    return this.db.query<{ id: string; label: string }, []>(`SELECT id, label FROM folders ORDER BY pos`).all() as Folder[];
+    return this.db.query<{ id: string; label: string; }, []>(`SELECT id, label FROM folders ORDER BY pos`).all() as Folder[];
   }
 
   feeds(): Feed[] {
     const rows = this.db
-      .query<{ id: string; title: string; url: string; folder: string; site_url: string }, []>(
+      .query<{ id: string; title: string; url: string; folder: string; site_url: string; }, []>(
         `SELECT id, title, url, folder, site_url FROM feeds ORDER BY title`,
       )
       .all();
@@ -78,7 +78,7 @@ export class Store {
 
   feedById(id: string): Feed | null {
     const r = this.db
-      .query<{ id: string; title: string; url: string; folder: string; site_url: string }, [string]>(
+      .query<{ id: string; title: string; url: string; folder: string; site_url: string; }, [string]>(
         `SELECT id, title, url, folder, site_url FROM feeds WHERE id=?`,
       )
       .get(id);
@@ -182,7 +182,7 @@ export class Store {
 
     let query =
       "SELECT i.id, i.feed_id, i.folder, i.title, i.authors, i.date, i.read, i.starred, i.tag, i.abstract, i.body, i.link, i.minutes FROM items i";
-    if (where.length > 0) query += " WHERE " + where.join(" AND ");
+    if (where.length > 0) query += ` WHERE ${where.join(" AND ")}`;
 
     switch (f.sort) {
       case "oldest":
@@ -246,7 +246,7 @@ export class Store {
 
   counts(): Counts {
     const one = (q: string, ...args: (string | number)[]): number => {
-      const r = this.db.query<{ n: number }, (string | number)[]>(q).get(...args);
+      const r = this.db.query<{ n: number; }, (string | number)[]>(q).get(...args);
       return r?.n ?? 0;
     };
     const today = todayStr();
@@ -264,14 +264,14 @@ export class Store {
       perFeed: {},
     };
     const rows = this.db
-      .query<{ feed_id: string; n: number }, []>(`SELECT feed_id, COUNT(*) AS n FROM items WHERE read=0 GROUP BY feed_id`)
+      .query<{ feed_id: string; n: number; }, []>(`SELECT feed_id, COUNT(*) AS n FROM items WHERE read=0 GROUP BY feed_id`)
       .all();
     for (const r of rows) c.perFeed[r.feed_id] = r.n;
     return c;
   }
 
   itemExists(id: string): boolean {
-    const r = this.db.query<{ n: number }, [string]>(`SELECT 1 AS n FROM items WHERE id=? LIMIT 1`).get(id);
+    const r = this.db.query<{ n: number; }, [string]>(`SELECT 1 AS n FROM items WHERE id=? LIMIT 1`).get(id);
     return (r?.n ?? 0) === 1;
   }
 
@@ -291,11 +291,11 @@ export class Store {
   }
 
   feedCount(): number {
-    return this.db.query<{ n: number }, []>(`SELECT COUNT(*) AS n FROM feeds`).get()?.n ?? 0;
+    return this.db.query<{ n: number; }, []>(`SELECT COUNT(*) AS n FROM feeds`).get()?.n ?? 0;
   }
 
   folderCount(): number {
-    return this.db.query<{ n: number }, []>(`SELECT COUNT(*) AS n FROM folders`).get()?.n ?? 0;
+    return this.db.query<{ n: number; }, []>(`SELECT COUNT(*) AS n FROM folders`).get()?.n ?? 0;
   }
 
   seed(): void {

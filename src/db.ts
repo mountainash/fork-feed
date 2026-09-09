@@ -38,8 +38,8 @@ CREATE INDEX IF NOT EXISTS idx_items_read ON items(read);
 
 export function openDb(path: string): Database {
   const db = new Database(path, { create: true });
-  db.exec("PRAGMA journal_mode = WAL;");
-  db.exec("PRAGMA busy_timeout = 5000;");
-  db.exec(SCHEMA);
+  db.run("PRAGMA journal_mode = WAL;");
+  db.run("PRAGMA busy_timeout = 5000;");
+  db.run(SCHEMA);
   return db;
 }
