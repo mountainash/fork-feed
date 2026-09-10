@@ -275,6 +275,13 @@ export class Store {
     return (r?.n ?? 0) === 1;
   }
 
+  existingItemIds(feedId: string): string[] {
+    return this.db
+      .query<{ id: string; }, [string]>(`SELECT id FROM items WHERE feed_id=?`)
+      .all(feedId)
+      .map((r) => r.id);
+  }
+
   deleteFeed(id: string): void {
     this.db.run(`DELETE FROM items WHERE feed_id=?`, [id]);
     this.db.run(`DELETE FROM feeds WHERE id=?`, [id]);

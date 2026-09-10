@@ -7,6 +7,7 @@ export interface FeedWorkRequest {
   today: string;
   options?: Partial<FeedJobOptions>;
   debug?: boolean;
+  knownItemIds?: string[];
 }
 
 export interface FeedWorkLog {
@@ -35,7 +36,8 @@ self.onmessage = async (event: MessageEvent<FeedWorkRequest>) => {
   const log = req.debug ? (message: string) => postMessage({ type: "log", message }) : undefined;
   try {
     const opts: FeedJobOptions = { ...DEFAULT_FEED_JOB_OPTIONS, ...(req.options ?? {}) };
-    const { items, errors } = await processFeed(req.feed, req.today, opts, log);
+    const known = req.knownItemIds ? new Set(req.knownItemIds) : undefined;
+    const { items, errors } = await processFeed(req.feed, req.today, opts, log, known);
     postMessage({ type: "result", ok: true, items, articleErrors: errors });
   } catch (err) {
     postMessage({ type: "result", ok: false, error: err instanceof Error ? err.message : String(err) });

@@ -149,7 +149,13 @@ export interface ProcessFeedResult {
   errors: number;
 }
 
-export async function processFeed(feed: Feed, today: string, opts: FeedJobOptions, log?: (msg: string) => void): Promise<ProcessFeedResult> {
+export async function processFeed(
+  feed: Feed,
+  today: string,
+  opts: FeedJobOptions,
+  log?: (msg: string) => void,
+  knownItemIds?: ReadonlySet<string>,
+): Promise<ProcessFeedResult> {
   const fetched = await fetchTextCapped(feed.url, opts.feedTimeoutMs, opts.maxFeedBytes, log);
   if (fetched === null) throw new Error(`http error fetching ${redactUrl(feed.url)}`);
   if (fetched.bytes >= opts.feedBytesWarnAt) {
@@ -157,6 +163,7 @@ export async function processFeed(feed: Feed, today: string, opts: FeedJobOption
   }
   const out: Item[] = [];
   let errors = 0;
+  let articleFetches = 0;
   const raws = splitEntries(fetched.text);
   const gap = Math.max(0, opts.articleGapMs);
   for (const raw of raws) {
@@ -168,7 +175,9 @@ export async function processFeed(feed: Feed, today: string, opts: FeedJobOption
       continue;
     }
     const item = buildItem(feed, e, today);
-    if (item.link && out.length < opts.maxArticlesPerFeed) {
+    const stored = knownItemIds?.has(item.id) ?? false;
+    if (item.link && !stored && articleFetches < opts.maxArticlesPerFeed) {
+      articleFetches++;
       try {
         const article = await fetchTextCapped(item.link, opts.articleTimeoutMs, opts.maxArticleBytes, log);
         if (article?.text) {

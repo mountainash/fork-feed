@@ -86,14 +86,15 @@ async function runFeedInWorker(
   workerTimeoutMs: number,
   debug: boolean,
   debugLog: (...args: unknown[]) => void,
+  knownItemIds: string[],
 ): Promise<{ items: Item[]; errors: number; }> {
   let worker: Worker;
   try {
     worker = new Worker(new URL("./feed-worker.ts", import.meta.url).href);
   } catch {
-    return processFeed(feed, today, jobOpts, debug ? (msg) => debugLog(msg) : undefined);
+    return processFeed(feed, today, jobOpts, debug ? (msg) => debugLog(msg) : undefined, new Set(knownItemIds));
   }
-  const req: FeedWorkRequest = { type: "process-feed", feed, today, options: jobOpts, debug };
+  const req: FeedWorkRequest = { type: "process-feed", feed, today, options: jobOpts, debug, knownItemIds };
   try {
     return await new Promise<{ items: Item[]; errors: number; }>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -180,7 +181,16 @@ export function createFetcher(store: Store, intervalMs: number, onSync: (t: Date
           const feed = feeds[i];
           if (dispatched++ > 0 && feedGapMs > 0) await Bun.sleep(feedGapMs);
           try {
-            const { items, errors: articleErrors } = await runFeedInWorker(feed, todayStr, jobOpts, workerTimeoutMs, debug, debugLog);
+            const knownItemIds = store.existingItemIds(feed.id);
+            const { items, errors: articleErrors } = await runFeedInWorker(
+              feed,
+              todayStr,
+              jobOpts,
+              workerTimeoutMs,
+              debug,
+              debugLog,
+              knownItemIds,
+            );
             if (articleErrors > 0) debugLog(`article errors feed=${feed.title} errors=${articleErrors}`);
             fetched++;
             for (const item of items) {
