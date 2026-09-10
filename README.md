@@ -123,6 +123,25 @@ The included Fly deployment runs [cloudflared](https://developers.cloudflare.com
 
 `REQUIRE_TUNNEL=true` makes the container exit if the token is missing. Before deploying, confirm `fly ips list` has no public addresses; the tunnel makes outbound connections to Cloudflare and does not require a Fly public IP.
 
+#### ⚠️ ICMP proxy warning
+
+On startup cloudflared logs a warning and disables its ICMP proxy because the container's GID (`0`) is outside the default `net.ipv4.ping_group_range` of `1 0`:
+
+```text
+WRN The user running cloudflared process has a GID (group ID) that is not within ping_group_range ...
+WRN ICMP proxy feature is disabled error="cannot create ICMPv4 proxy: ... nor ICMPv6 proxy: socket: permission denied"
+```
+
+This is harmless here: the ICMP proxy only answers `ping` over WARP-to-Tunnel private networks, which a public hostname tunnel never uses. `docker-entrypoint.sh` widens the range before starting cloudflared (`echo "0 2147483647" > /proc/sys/net/ipv4/ping_group_range`), so a normal `fly deploy` needs no extra step.
+
+To apply the same change to an already-running machine without redeploying:
+
+```bash
+fly ssh console -C "sh -c 'echo 0 2147483647 > /proc/sys/net/ipv4/ping_group_range'"
+```
+
+The setting lives in the machine's network namespace, so it is lost when the machine restarts — the entrypoint reapplies it on every boot once the updated image is deployed.
+
 ## 📦 Prerequisites
 
 - [bun](https://bun.sh/) 1.0+
