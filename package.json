@@ -10,8 +10,8 @@
   "scripts": {
     "dev": "DEVELOPMENT_DEBUG=true bun run --hot ./src/server.ts",
     "start": "bun run ./src/server.ts",
-    "build": "bun build --compile ./src/server.ts --outfile ./dist/kontrolplane-feed",
-    "build:linux-x64-musl": "bun build --compile --minify --bytecode --target=bun-linux-x64-musl ./src/server.ts --outfile ./dist/kontrolplane-feed",
+    "build": "bun build --compile ./src/server.ts ./src/feed-worker.ts --outfile ./dist/kontrolplane-feed",
+    "build:linux-x64-musl": "bun build --compile --minify --bytecode --target=bun-linux-x64-musl ./src/server.ts ./src/feed-worker.ts --outfile ./dist/kontrolplane-feed",
     "clean": "rm -rf dist feed.db feed.db-shm feed.db-wal tmp"
   },
   "devDependencies": {

@@ -6,28 +6,38 @@ export interface FeedWorkRequest {
   feed: Feed;
   today: string;
   options?: Partial<FeedJobOptions>;
+  debug?: boolean;
 }
 
-export interface FeedWorkResponse {
+export interface FeedWorkLog {
+  type: "log";
+  message: string;
+}
+
+export interface FeedWorkResult {
+  type: "result";
   ok: boolean;
   items?: Item[];
   articleErrors?: number;
   error?: string;
 }
 
+export type FeedWorkResponse = FeedWorkLog | FeedWorkResult;
+
 declare function postMessage(msg: FeedWorkResponse): void;
 
 self.onmessage = async (event: MessageEvent<FeedWorkRequest>) => {
   const req = event.data;
   if (req?.type !== "process-feed") {
-    postMessage({ ok: false, error: "unknown request" });
+    postMessage({ type: "result", ok: false, error: "unknown request" });
     return;
   }
+  const log = req.debug ? (message: string) => postMessage({ type: "log", message }) : undefined;
   try {
     const opts: FeedJobOptions = { ...DEFAULT_FEED_JOB_OPTIONS, ...(req.options ?? {}) };
-    const { items, errors } = await processFeed(req.feed, req.today, opts);
-    postMessage({ ok: true, items, articleErrors: errors });
+    const { items, errors } = await processFeed(req.feed, req.today, opts, log);
+    postMessage({ type: "result", ok: true, items, articleErrors: errors });
   } catch (err) {
-    postMessage({ ok: false, error: err instanceof Error ? err.message : String(err) });
+    postMessage({ type: "result", ok: false, error: err instanceof Error ? err.message : String(err) });
   }
 };

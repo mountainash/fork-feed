@@ -151,7 +151,7 @@ export function settingsView(data: SettingsData): string {
           <h2 style="font-family:var(--grot);font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-top:48px;margin-bottom:14px">server</h2>
           <div class="server-info">
             <div class="srow"><span class="k">binary</span><span>kontrolplane-feed · bun</span></div>
-            <div class="srow"><span class="k">version</span><span>v${esc(data.version)}</span></div>
+            <div class="srow"><span class="k">version</span><a class="version-link" href="https://github.com/mountainash/fork-feed" target="_blank" rel="noopener">v${esc(data.version)}</a></div>
             <div class="srow"><span class="k">server</span><span>bun.serve</span></div>
             <div class="srow"><span class="k">views</span><span>typescript html · htmx</span></div>
             <div class="srow"><span class="k">db</span><span>${esc(data.databaseDriver)} · ${esc(data.databaseInfo)}</span></div>

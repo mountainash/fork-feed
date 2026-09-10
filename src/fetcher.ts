@@ -84,14 +84,16 @@ async function runFeedInWorker(
   today: string,
   jobOpts: FeedJobOptions,
   workerTimeoutMs: number,
+  debug: boolean,
+  debugLog: (...args: unknown[]) => void,
 ): Promise<{ items: Item[]; errors: number; }> {
   let worker: Worker;
   try {
     worker = new Worker(new URL("./feed-worker.ts", import.meta.url).href);
   } catch {
-    return processFeed(feed, today, jobOpts);
+    return processFeed(feed, today, jobOpts, debug ? (msg) => debugLog(msg) : undefined);
   }
-  const req: FeedWorkRequest = { type: "process-feed", feed, today, options: jobOpts };
+  const req: FeedWorkRequest = { type: "process-feed", feed, today, options: jobOpts, debug };
   try {
     return await new Promise<{ items: Item[]; errors: number; }>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -102,12 +104,16 @@ async function runFeedInWorker(
         reject(new Error(`worker timeout for ${feed.url}`));
       }, workerTimeoutMs);
       worker.onmessage = (event: MessageEvent<FeedWorkResponse>) => {
+        const data = event.data;
+        if (data?.type === "log") {
+          debugLog(data.message);
+          return;
+        }
         clearTimeout(timer);
         try {
           worker.terminate();
         } catch {
         }
-        const data = event.data;
         if (data?.ok) resolve({ items: data.items ?? [], errors: data.articleErrors ?? 0 });
         else reject(new Error(data?.error ?? `worker error for ${feed.url}`));
       };
@@ -117,6 +123,7 @@ async function runFeedInWorker(
           worker.terminate();
         } catch {
         }
+        debugLog(`worker failure for ${feed.url}: ${event.message} (${event.filename}:${event.lineno})`);
         reject(event.error instanceof Error ? event.error : new Error(`worker error for ${feed.url}`));
       };
       worker.postMessage(req);
@@ -173,7 +180,7 @@ export function createFetcher(store: Store, intervalMs: number, onSync: (t: Date
           const feed = feeds[i];
           if (dispatched++ > 0 && feedGapMs > 0) await Bun.sleep(feedGapMs);
           try {
-            const { items, errors: articleErrors } = await runFeedInWorker(feed, todayStr, jobOpts, workerTimeoutMs);
+            const { items, errors: articleErrors } = await runFeedInWorker(feed, todayStr, jobOpts, workerTimeoutMs, debug, debugLog);
             if (articleErrors > 0) debugLog(`article errors feed=${feed.title} errors=${articleErrors}`);
             fetched++;
             for (const item of items) {

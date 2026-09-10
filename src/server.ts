@@ -35,7 +35,7 @@ let lastSync = new Date();
 
 if (cfg.feedsFile) {
   try {
-    const n = importOpmlFileAsync(store, cfg.feedsFile);
+    const n = await importOpmlFileAsync(store, cfg.feedsFile);
     log(`imported feeds from file path=${cfg.feedsFile} feeds=${n}`);
   } catch (err) {
     console.error("failed to import feeds file", err);

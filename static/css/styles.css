@@ -1236,6 +1236,16 @@ kbd,
 			opacity: 0.55;
 			letter-spacing: 0.04em;
 		}
+
+		.version-link {
+			justify-self: start;
+			border-bottom: 1px solid transparent;
+			transition: border-color var(--ease);
+
+			&:hover {
+				border-bottom-color: currentColor;
+			}
+		}
 	}
 }
 

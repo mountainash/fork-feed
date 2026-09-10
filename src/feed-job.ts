@@ -39,7 +39,7 @@ function redactUrl(raw: string): string {
   try {
     const u = new URL(raw);
     if (u.password) u.password = "***";
-    return `${u.host}${u.pathname}`;
+    return `${u.protocol}//${u.host}${u.pathname}`;
   } catch {
     return raw.slice(0, 80);
   }
@@ -59,6 +59,7 @@ export async function fetchTextCapped(
       log?.(`non-200 for ${redactUrl(url)}: ${res.status}`);
       return null;
     }
+    log?.(`fetch ok ${res.status} ${redactUrl(url)}`);
     const len = res.headers.get("content-length");
     if (len !== null) {
       const n = Number(len);
