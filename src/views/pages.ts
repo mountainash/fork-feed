@@ -46,17 +46,17 @@ export function layout(inner: string): string {
           </a>
           <div class="search">
             <span class="prompt">/</span>
-            <input type="search" name="q" placeholder="search items, authors, abstracts…" hx-get="/search" hx-trigger="keyup changed delay:200ms, search" hx-target="#main" hx-swap="outerHTML" hx-indicator="#sync-indicator">
+            <input type="search" name="q" placeholder="search items, authors, abstracts…" hx-get="/search" hx-trigger="keyup changed delay:200ms, search" hx-target="#main" hx-swap="outerHTML" hx-indicator="#sync-btn">
             <kbd>/</kbd>
           </div>
           <div class="tools">
             <button type="button" class="btn btn-add-folder" hx-get="/folders/new" hx-target="#modal" hx-swap="innerHTML">＋ folder</button>
             <button type="button" class="btn" hx-get="/feeds/new" hx-target="#modal" hx-swap="innerHTML">＋ feed</button>
-            <button type="button" class="btn" hx-get="/partials/list" hx-target="#main" hx-swap="outerHTML" hx-indicator="#sync-indicator">
+            <button type="button" class="btn sync-btn" id="sync-btn" hx-get="/partials/list" hx-target="#main" hx-swap="outerHTML">
               <span class="dot"></span>
-              sync · now
+              <span class="sync-now">sync · now</span>
+              <span class="sync-busy">syncing…</span>
             </button>
-            <span id="sync-indicator" class="htmx-indicator">sync…</span>
           </div>
         </header>
 

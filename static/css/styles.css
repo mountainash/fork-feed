@@ -331,6 +331,27 @@ kbd,
 				box-shadow: 0 0 0 2px rgba(46, 158, 74, 0.15);
 				animation: pulse 2s infinite;
 			}
+
+			&.sync-btn {
+				.sync-busy {
+					display: none;
+				}
+
+				&.htmx-request {
+					.sync-now {
+						display: none;
+					}
+
+					.sync-busy {
+						display: inline;
+					}
+
+					.dot {
+						background: var(--warn);
+						box-shadow: 0 0 0 2px rgba(201, 145, 53, 0.15);
+					}
+				}
+			}
 		}
 	}
 }
@@ -984,6 +1005,15 @@ kbd,
 
 		& > * {
 			flex-shrink: 0;
+		}
+	}
+
+	.manage-link {
+		border-bottom: 1px solid transparent;
+		transition: border-color var(--ease);
+
+		&:hover {
+			border-bottom-color: currentColor;
 		}
 	}
 }

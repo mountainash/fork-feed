@@ -140,7 +140,7 @@ export function statusInner(data: StatusData): string {
           list</span>
         <span>·</span>
       </span>
-      <span>${data.feedCount} feeds · ${esc(data.lastSync)}</span>
+      <a class="manage-link" href="/manage" hx-get="/manage" hx-target="#main" hx-swap="outerHTML" hx-push-url="/manage">${data.feedCount} feeds · ${esc(data.lastSync)}</a>
     </div>`;
 }
 
